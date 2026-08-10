@@ -159,6 +159,7 @@ export type Collaborator =
   | 'jesus'
   | 'carlos'
   | 'yared'
+  | 'noemi'
   | 'todos';
 
 export type ProjectStatus =

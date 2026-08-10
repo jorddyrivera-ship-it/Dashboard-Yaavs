@@ -587,6 +587,7 @@ const CHECADOR_NAME_HINTS: { pattern: RegExp; employeeId: string }[] = [
   { pattern: /\bjuan\s*carlos\b|\btrejo\b/, employeeId: 'emp-juancarlos' },
   { pattern: /\byared\b/, employeeId: 'emp-yared' },
   { pattern: /\bjorddy\b|\bdylan\b|\brivera\b/, employeeId: 'emp-jorddy' },
+  { pattern: /\bnoemi\b|\bnoemí\b/, employeeId: 'emp-noemi' },
 ];
 
 function matchEmployee(

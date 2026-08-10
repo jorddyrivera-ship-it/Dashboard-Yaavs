@@ -92,4 +92,5 @@ export const TRACKED_COLLABORATORS: Collaborator[] = [
   'andrea',
   'carlos',
   'yared',
+  'noemi',
 ];

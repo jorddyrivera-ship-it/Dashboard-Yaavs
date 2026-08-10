@@ -22,7 +22,7 @@ export const STATUS_COLORS: Record<TaskStatus, string> = {
 };
 
 /** Súbelo cuando cambies seed/usuarios para forzar migración en clientes antiguos. */
-export const BOARD_SCHEMA_VERSION = 12;
+export const BOARD_SCHEMA_VERSION = 13;
 /** Nombres viejos del proyecto (TeamBoard / Mi Empresa) → Yaavs */
 export const LEGACY_COMPANY_NAMES = [
   'mi empresa',

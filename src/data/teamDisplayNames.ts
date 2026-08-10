@@ -10,6 +10,7 @@ export const TEAM_MEMBER_NAMES: Record<string, string> = {
   'emp-jorddy': 'Dylan Rivera',
   'emp-jesus': 'Jesús Higuera',
   'emp-yared': 'Yared Pérez',
+  'emp-noemi': 'Noemí López',
 };
 
 /** Nombre completo por slug de colaborador en proyectos. */
@@ -21,6 +22,7 @@ export const COLLABORATOR_DISPLAY_NAMES: Record<Collaborator, string> = {
   jesus: 'Jesús Higuera',
   carlos: 'Carlos Trejo',
   yared: 'Yared Pérez',
+  noemi: 'Noemí López',
   todos: 'TODOS',
 };
 

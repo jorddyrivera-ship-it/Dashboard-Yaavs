@@ -34,6 +34,11 @@ export const MARKETING_POSITIONS: MarketingPositionDef[] = [
     title: 'Community Manager',
     employeeIds: ['emp-yared'],
   },
+  {
+    id: 'trade',
+    title: 'Trade Marketing',
+    employeeIds: ['emp-noemi'],
+  },
 ];
 
 export interface PositionMemberKpi {

@@ -83,4 +83,13 @@ export const USERS: User[] = [
     avatarColor: '#cab641',
     employeeId: 'emp-andres',
   },
+  {
+    id: 'u-noemi',
+    username: 'noemi',
+    password: 'tradeNoemi26',
+    name: TEAM_MEMBER_NAMES['emp-noemi']!,
+    role: 'empleado',
+    avatarColor: '#e11d48',
+    employeeId: 'emp-noemi',
+  },
 ];

@@ -19,6 +19,7 @@ const NAMED_COLLABORATORS: Collaborator[] = [
   'jesus',
   'carlos',
   'yared',
+  'noemi',
 ];
 
 export function collaboratorForUser(user: User | null): Collaborator | null {
@@ -37,6 +38,7 @@ const EMPLOYEE_ID_TO_COLLABORATOR: Record<string, Collaborator> = {
   'emp-juancarlos': 'carlos',
   'emp-yared': 'yared',
   'emp-roberto': 'roberto',
+  'emp-noemi': 'noemi',
 };
 
 export function collaboratorForEmployeeId(employeeId: string): Collaborator | null {

@@ -51,6 +51,7 @@ export const EMPTY_BOARD: BoardState = {
     emptyTeamTask('t-roberto', 'emp-roberto', N['emp-roberto']!, 'Diseñador Gráfico', '#0086c0'),
     emptyTeamTask('t-andrea', 'emp-andrea', N['emp-andrea']!, 'Diseñador Gráfico', '#9cd326'),
     emptyTeamTask('t-andres', 'emp-andres', N['emp-andres']!, 'Diseñador Gráfico', '#cab641'),
+    emptyTeamTask('t-noemi', 'emp-noemi', N['emp-noemi']!, 'Trade Marketing', '#e11d48'),
   ],
 };
 
@@ -63,6 +64,7 @@ export const MARKETING_EMPLOYEE_IDS = [
   'emp-roberto',
   'emp-andrea',
   'emp-andres',
+  'emp-noemi',
 ] as const;
 
 export const DEFAULT_BOARD: BoardState = {
@@ -196,6 +198,22 @@ export const DEFAULT_BOARD: BoardState = {
       dueDate: addDays(4),
       notes: 'Exportar en @2x. Validar peso máximo 150 KB.',
       priority: 'alta',
+    },
+    {
+      id: 't-noemi',
+      employeeId: 'emp-noemi',
+      employeeName: N['emp-noemi']!,
+      department: MARKETING_DEPARTMENT,
+      roleTitle: 'Trade Marketing',
+      avatarColor: '#e11d48',
+      currentWork: 'Sin tarea asignada — define el trabajo actual',
+      status: 'sin_empezar',
+      kpiTarget: 100,
+      kpiCurrent: 0,
+      objective: 'Objetivo del periodo',
+      dueDate: addDays(30),
+      notes: '',
+      priority: 'media',
     },
   ],
 };

@@ -117,6 +117,7 @@ export const COLLABORATORS: { value: Collaborator; label: string }[] = [
   { value: 'jesus', label: COLLABORATOR_DISPLAY_NAMES.jesus },
   { value: 'carlos', label: COLLABORATOR_DISPLAY_NAMES.carlos },
   { value: 'yared', label: COLLABORATOR_DISPLAY_NAMES.yared },
+  { value: 'noemi', label: COLLABORATOR_DISPLAY_NAMES.noemi },
   { value: 'todos', label: COLLABORATOR_DISPLAY_NAMES.todos },
 ];
 
