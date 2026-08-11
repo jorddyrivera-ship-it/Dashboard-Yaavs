@@ -243,7 +243,7 @@ export function ExtraProjectsView({ filter = '' }: { filter?: string }) {
         canEditAll
           ? asDaily
             ? 'Extra registrado y guardado como Daily.'
-            : 'Proyecto extra aprobado y agregado a Activos.'
+            : 'Proyecto extra aprobado y agregado a Concluidos.'
           : asDaily
             ? 'Enviado a Orlando. Quedó guardado como Daily para no reescribirlo.'
             : 'Enviado a Orlando para aprobación.',
@@ -270,7 +270,7 @@ export function ExtraProjectsView({ filter = '' }: { filter?: string }) {
 
   const handleApprove = (e: ExtraProjectEntry) => {
     if (approveExtraProject(e.id)) {
-      toast.success(`«${e.projectName}» aprobado · ya está en Activos.`);
+      toast.success(`«${e.projectName}» aprobado · ya está en Concluidos.`);
     } else {
       toast.error('No se pudo aprobar.');
     }
@@ -307,7 +307,7 @@ export function ExtraProjectsView({ filter = '' }: { filter?: string }) {
           <h2>Proyectos extra</h2>
           <p>
             {canEditAll
-              ? 'Aprueba o rechaza lo que el equipo envía. Al aprobar, el proyecto pasa a Activos. Los Daily son trabajos repetitivos guardados.'
+              ? 'Aprueba o rechaza lo que el equipo envía. Al aprobar, el proyecto pasa a Concluidos. Los Daily son trabajos repetitivos guardados.'
               : 'Registra trabajos adicionales y envíalos a Orlando. Si es un trabajo de todos los días, márcalo como Daily para no volver a escribirlo.'}
           </p>
         </div>
@@ -505,7 +505,7 @@ export function ExtraProjectsView({ filter = '' }: { filter?: string }) {
               : canEditAll
                 ? saveAsDaily
                   ? '+ Registrar y guardar Daily'
-                  : '+ Agregar a Activos'
+                  : '+ Agregar a Concluidos'
                 : saveAsDaily
                   ? 'Enviar y guardar como Daily'
                   : 'Enviar a aprobación'}

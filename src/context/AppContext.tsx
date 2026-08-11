@@ -546,6 +546,95 @@ function boardIdForExtraEntry(entryId: string): string {
 }
 
 /**
+ * Extras ya aprobados deben vivir en Concluidos. Corrige los que quedaron
+ * en Activos (en_proceso) por versiones anteriores, y crea el linked si falta.
+ */
+function reconcileApprovedExtrasAsCompleted(
+  projects: CreativeProject[],
+  extras: ExtraProjectEntry[],
+): { projects: CreativeProject[]; changed: boolean } {
+  const byId = new Map(projects.map((p) => [p.id, p]));
+  let changed = false;
+  const now = new Date().toISOString();
+
+  for (const entry of extras) {
+    if ((entry.status ?? 'approved') !== 'approved') continue;
+    const projectId = entry.linkedProjectId || boardIdForExtraEntry(entry.id);
+    const employeeIds = entry.employeeIds?.length
+      ? entry.employeeIds
+      : [entry.employeeId];
+    const employeeNames = entry.employeeNames?.length
+      ? entry.employeeNames
+      : [entry.employeeName];
+    const collaborators = employeeIds
+      .map(collaboratorForEmployeeId)
+      .filter((value): value is Collaborator => Boolean(value));
+    if (!collaborators.length) continue;
+
+    const existing = byId.get(projectId);
+    if (!existing) {
+      byId.set(projectId, {
+        id: projectId,
+        requestDate: entry.doneDate || entry.createdAt?.slice(0, 10) || now.slice(0, 10),
+        projectName: entry.projectName,
+        businessUnit: 'yaavs_general',
+        requestedBy: entry.employeeName,
+        requestingDepartment: 'marketing',
+        projectType: 'diseno_grafico',
+        priority: 'media',
+        commitmentDate: entry.doneDate,
+        internalArea: 'diseno_grafico',
+        collaborator: collaborators[0],
+        collaborators,
+        assignedEmployeeId: employeeIds.length === 1 ? employeeIds[0] : undefined,
+        acceptanceStatus: 'accepted',
+        acceptedAt: entry.reviewedAt || entry.updatedAt || now,
+        acceptedByName: employeeNames.join(', '),
+        status: 'terminado',
+        finishedDate: entry.doneDate || now.slice(0, 10),
+        completedAt: entry.reviewedAt || entry.updatedAt || now,
+        completedByName: employeeNames.join(', '),
+        comments: entry.notes ?? 'Proyecto extra',
+        estimatedHours: entry.minutes ? entry.minutes / 60 : undefined,
+        trackedMinutes: entry.minutes,
+        createdAt: entry.createdAt || now,
+        updatedAt: now,
+      });
+      changed = true;
+      continue;
+    }
+
+    if (existing.status === 'terminado') {
+      // Asegura fecha de fin si faltaba.
+      if (!existing.finishedDate && entry.doneDate) {
+        byId.set(projectId, {
+          ...existing,
+          finishedDate: entry.doneDate,
+          completedAt: existing.completedAt || entry.reviewedAt || now,
+          completedByName: existing.completedByName || employeeNames.join(', '),
+        });
+        changed = true;
+      }
+      continue;
+    }
+
+    byId.set(projectId, {
+      ...existing,
+      status: 'terminado',
+      finishedDate: existing.finishedDate || entry.doneDate || now.slice(0, 10),
+      completedAt: existing.completedAt || entry.reviewedAt || entry.updatedAt || now,
+      completedByName: existing.completedByName || employeeNames.join(', '),
+      trackedMinutes: existing.trackedMinutes ?? entry.minutes,
+      acceptanceStatus: 'accepted',
+      updatedAt: now,
+    });
+    changed = true;
+  }
+
+  return { projects: [...byId.values()], changed };
+}
+
+/**
  * Quita duplicados blandos: mismo nombre + mismos colaboradores.
  * Conserva el más reciente (updatedAt) y prioriza ids `extra-project-*`.
  */
@@ -1379,6 +1468,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     localStorage.setItem(EXTRA_PROJECTS_KEY, JSON.stringify(extraProjects));
+  }, [extraProjects]);
+
+  // Extras aprobados que quedaron en Activos → mover a Concluidos.
+  useEffect(() => {
+    if (!extraProjects.length) return;
+    setBoard((prev) => {
+      const { projects, changed } = reconcileApprovedExtrasAsCompleted(
+        prev.projects ?? [],
+        extraProjects,
+      );
+      if (!changed) return prev;
+      return { ...prev, projects };
+    });
   }, [extraProjects]);
 
   useEffect(() => {
@@ -3169,7 +3271,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       now: string,
     ): CreativeProject => ({
       id: projectId,
-      requestDate: now.slice(0, 10),
+      requestDate: entry.doneDate || now.slice(0, 10),
       projectName: entry.projectName,
       businessUnit: 'yaavs_general',
       requestedBy: requestedByName,
@@ -3184,10 +3286,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       acceptanceStatus: 'accepted',
       acceptedAt: now,
       acceptedByName: employeeNames.join(', '),
-      status: 'en_proceso',
+      // Extra = trabajo ya hecho: al aprobarse va a Concluidos, no a Activos.
+      status: 'terminado',
+      finishedDate: entry.doneDate || now.slice(0, 10),
+      completedAt: entry.reviewedAt || now,
+      completedByName: employeeNames.join(', '),
       comments: entry.notes ?? 'Proyecto extra',
       estimatedHours: entry.minutes ? entry.minutes / 60 : undefined,
-      createdAt: now,
+      trackedMinutes: entry.minutes,
+      createdAt: entry.createdAt || now,
       updatedAt: now,
     }),
     [],
@@ -3313,14 +3420,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         );
         setBoard((prev) => {
           const withoutDupes = softDedupeProjectsByNameAndCollaborators(
-            (prev.projects ?? []).filter((p) => p.id !== projectId),
-          ).filter((p) => {
-            if (normalizeExtraProjectName(p.projectName) !== nameKey) return true;
-            return collaboratorKey(p.collaborators) !== collabKey;
-          });
+            (prev.projects ?? []).filter((p) => {
+              if (p.id === projectId) return true;
+              // No borrar concluidos previos con el mismo nombre.
+              if (p.status === 'terminado') return true;
+              if (normalizeExtraProjectName(p.projectName) !== nameKey) return true;
+              return collaboratorKey(p.collaborators) !== collabKey;
+            }),
+          );
           return {
             ...prev,
-            projects: [activeProject, ...withoutDupes],
+            projects: [activeProject, ...withoutDupes.filter((p) => p.id !== projectId)],
           };
         });
         logActivity(
@@ -3520,14 +3630,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
                   ...project,
                   projectName: next.projectName,
                   commitmentDate: next.doneDate,
+                  finishedDate: next.doneDate,
                   comments: next.notes ?? 'Proyecto extra',
                   estimatedHours: next.minutes
                     ? next.minutes / 60
                     : undefined,
+                  trackedMinutes: next.minutes ?? project.trackedMinutes,
                   collaborators,
                   collaborator: collaborators[0],
                   assignedEmployeeId:
                     employeeIds.length === 1 ? employeeIds[0] : undefined,
+                  status: 'terminado',
                   updatedAt: new Date().toISOString(),
                 }
               : project,
@@ -3642,6 +3755,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const cleaned = softDedupeProjectsByNameAndCollaborators(
           (prev.projects ?? []).filter((p) => {
             if (p.id === projectId) return true;
+            if (p.status === 'terminado' && p.id !== projectId) return true;
             if (deletedProjectIdsRef.current[p.id]) return false;
             if (normalizeExtraProjectName(p.projectName) !== nameKey) return true;
             return collaboratorKey(p.collaborators) !== collabKey;
@@ -3657,16 +3771,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
                       ...p,
                       projectName: next.projectName,
                       commitmentDate: next.doneDate,
+                      finishedDate: next.doneDate,
                       comments: next.notes ?? 'Proyecto extra',
                       estimatedHours: next.minutes
                         ? next.minutes / 60
                         : undefined,
+                      trackedMinutes: next.minutes ?? p.trackedMinutes,
                       collaborators,
                       collaborator: collaborators[0],
                       assignedEmployeeId:
                         employeeIds.length === 1 ? employeeIds[0] : undefined,
                       acceptanceStatus: 'accepted',
-                      status: 'en_proceso',
+                      status: 'terminado',
+                      completedAt: next.reviewedAt || now,
+                      completedByName: employeeNames.join(', '),
                       updatedAt: now,
                     }
                   : p,
@@ -3684,8 +3802,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         employeeIds,
         excludeUserId: user.id,
         title: 'Proyecto extra aprobado',
-        body: `«${next.projectName}» ya está en Activos`,
-        url: '/proyectos',
+        body: `«${next.projectName}» ya está en Concluidos`,
+        url: '/concluidos',
         tag: `extra-approved-${next.id}`,
       });
       return true;
