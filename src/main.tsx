@@ -29,12 +29,19 @@ async function prepareApp(): Promise<void> {
 
   if (import.meta.env.PROD) {
     void import('virtual:pwa-register').then(({ registerSW }) => {
+      let refreshing = false;
+      // Cuando hay SW nuevo, recargar una vez para no quedar con menú viejo (p. ej. sin Formularios).
+      navigator.serviceWorker?.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
       registerSW({
         immediate: true,
         onRegisteredSW(_swUrl, registration) {
-          if (registration) {
-            setInterval(() => registration.update(), 60 * 60 * 1000);
-          }
+          if (!registration) return;
+          void registration.update();
+          setInterval(() => registration.update(), 5 * 60 * 1000);
         },
       });
     });
