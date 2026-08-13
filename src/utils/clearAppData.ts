@@ -1,5 +1,7 @@
 import { clearAllAttachmentData } from './attachmentStore';
 import {
+  APP_CLIENT_VERSION,
+  APP_CLIENT_VERSION_KEY,
   ASSIGNMENTS_STORAGE_KEY,
   CALENDAR_STORAGE_KEY,
   PASSWORD_OVERRIDES_KEY,
@@ -31,6 +33,37 @@ export async function clearServiceWorkersAndCaches(): Promise<void> {
   if ('caches' in window) {
     const keys = await caches.keys();
     await Promise.all(keys.map((k) => caches.delete(k)));
+  }
+}
+
+/**
+ * Si el build del cliente cambió, limpia la PWA/caché y recarga UNA vez.
+ * No borra datos del tablero ni la sesión.
+ * @returns true si ya disparó reload (no seguir iniciando la app).
+ */
+export async function ensureClientBuildFresh(): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  try {
+    const current = localStorage.getItem(APP_CLIENT_VERSION_KEY);
+    if (current === APP_CLIENT_VERSION) return false;
+
+    const reloadFlag = `yaavs-build-reload-${APP_CLIENT_VERSION}`;
+    if (sessionStorage.getItem(reloadFlag) === '1') {
+      // Ya recargamos en esta sesión; marcar versión y continuar.
+      localStorage.setItem(APP_CLIENT_VERSION_KEY, APP_CLIENT_VERSION);
+      return false;
+    }
+
+    sessionStorage.setItem(reloadFlag, '1');
+    localStorage.setItem(APP_CLIENT_VERSION_KEY, APP_CLIENT_VERSION);
+    await clearServiceWorkersAndCaches();
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('_yaavs', APP_CLIENT_VERSION);
+    window.location.replace(url.toString());
+    return true;
+  } catch {
+    return false;
   }
 }
 

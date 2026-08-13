@@ -5,6 +5,7 @@ import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import {
   clearServiceWorkersAndCaches,
   clearYaavsStorage,
+  ensureClientBuildFresh,
   resetAppAndReload,
 } from './utils/clearAppData.ts';
 import { applyProductionDemoSeed } from './utils/applyProductionDemo.ts';
@@ -18,8 +19,20 @@ async function prepareApp(): Promise<void> {
     return;
   }
 
+  // Forzar actualización de menú/PWA en cualquier PC sin borrar datos.
+  if (params.get('actualizar') === '1' || params.get('update') === '1') {
+    await clearServiceWorkersAndCaches();
+    const url = new URL(window.location.href);
+    url.searchParams.delete('actualizar');
+    url.searchParams.delete('update');
+    window.location.replace(url.pathname + url.search + url.hash);
+    return;
+  }
+
   if (import.meta.env.PROD) {
     applyProductionDemoSeed();
+    const reloading = await ensureClientBuildFresh();
+    if (reloading) return;
   }
 
   // En desarrollo: quitar service workers viejos que dejan la pantalla en blanco
@@ -30,7 +43,6 @@ async function prepareApp(): Promise<void> {
   if (import.meta.env.PROD) {
     void import('virtual:pwa-register').then(({ registerSW }) => {
       let refreshing = false;
-      // Cuando hay SW nuevo, recargar una vez para no quedar con menú viejo (p. ej. sin Formularios).
       navigator.serviceWorker?.addEventListener('controllerchange', () => {
         if (refreshing) return;
         refreshing = true;
@@ -41,7 +53,7 @@ async function prepareApp(): Promise<void> {
         onRegisteredSW(_swUrl, registration) {
           if (!registration) return;
           void registration.update();
-          setInterval(() => registration.update(), 5 * 60 * 1000);
+          setInterval(() => registration.update(), 2 * 60 * 1000);
         },
       });
     });

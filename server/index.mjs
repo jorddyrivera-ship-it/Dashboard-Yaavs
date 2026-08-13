@@ -764,8 +764,25 @@ app.all('/api/push', async (req, res) => {
 });
 
 if (fs.existsSync(DIST_DIR)) {
-  app.use(express.static(DIST_DIR));
+  // index.html y sw.js sin caché: todas las PCs deben ver el menú nuevo (Formularios).
+  app.get(['/sw.js', '/index.html'], (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.sendFile(path.join(DIST_DIR, path.basename(req.path)));
+  });
+  app.use(
+    express.static(DIST_DIR, {
+      setHeaders(res, filePath) {
+        if (filePath.endsWith('index.html') || filePath.endsWith('sw.js')) {
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+          res.setHeader('Pragma', 'no-cache');
+        }
+      },
+    }),
+  );
   app.get(/^\/(?!api\/).*/, (_req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
     res.sendFile(path.join(DIST_DIR, 'index.html'));
   });
 }

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Actualizar Yaavs</title>
+  </head>
+  <body style="font-family: system-ui, sans-serif; padding: 2rem; max-width: 28rem; margin: 0 auto">
+    <h1 style="font-size: 1.25rem">Actualizando Yaavs…</h1>
+    <p>Limpiando caché del menú en esta computadora. No se borran proyectos ni datos.</p>
+    <script>
+      (function () {
+        var go = function () {
+          location.replace('/?_yaavs=14-formularios');
+        };
+        var jobs = [];
+        try {
+          localStorage.setItem('yaavs-app-client-version', '14-formularios');
+        } catch (e) {}
+        if (navigator.serviceWorker) {
+          jobs.push(
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+              return Promise.all(regs.map(function (r) { return r.unregister(); }));
+            }),
+          );
+        }
+        if (window.caches) {
+          jobs.push(
+            caches.keys().then(function (keys) {
+              return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+            }),
+          );
+        }
+        Promise.all(jobs).then(go).catch(go);
+      })();
+    </script>
+  </body>
+</html>

@@ -21,6 +21,51 @@
       rel="stylesheet"
     />
     <title>Yaavs — Marketing</title>
+    <script>
+      /* Fuerza menú nuevo en todas las PCs: limpia PWA vieja una vez por build. */
+      (function () {
+        var BUILD = '14-formularios';
+        var key = 'yaavs-app-client-version';
+        var flag = 'yaavs-html-bust-' + BUILD;
+        try {
+          var params = new URLSearchParams(location.search);
+          var force = params.get('actualizar') === '1' || params.get('update') === '1';
+          if (!force && localStorage.getItem(key) === BUILD) return;
+          if (!force && sessionStorage.getItem(flag) === '1') {
+            localStorage.setItem(key, BUILD);
+            return;
+          }
+          sessionStorage.setItem(flag, '1');
+          localStorage.setItem(key, BUILD);
+          var finish = function () {
+            if (force) {
+              params.delete('actualizar');
+              params.delete('update');
+              var q = params.toString();
+              location.replace(location.pathname + (q ? '?' + q : '') + location.hash);
+            } else {
+              location.reload();
+            }
+          };
+          var jobs = [];
+          if (navigator.serviceWorker) {
+            jobs.push(
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+              }),
+            );
+          }
+          if (window.caches) {
+            jobs.push(
+              caches.keys().then(function (keys) {
+                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+              }),
+            );
+          }
+          Promise.all(jobs).then(finish).catch(finish);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

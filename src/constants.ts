@@ -23,6 +23,13 @@ export const STATUS_COLORS: Record<TaskStatus, string> = {
 
 /** Súbelo cuando cambies seed/usuarios para forzar migración en clientes antiguos. */
 export const BOARD_SCHEMA_VERSION = 13;
+
+/**
+ * Súbelo cuando el menú/UI deba forzarse en todas las PCs (rompe caché PWA).
+ * Cada cambio hace que los clientes limpien service worker y recarguen una vez.
+ */
+export const APP_CLIENT_VERSION = '14-formularios';
+export const APP_CLIENT_VERSION_KEY = 'yaavs-app-client-version';
 /** Nombres viejos del proyecto (TeamBoard / Mi Empresa) → Yaavs */
 export const LEGACY_COMPANY_NAMES = [
   'mi empresa',

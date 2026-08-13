@@ -64,9 +64,17 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,svg,woff2}', 'icons/*.png'],
         globIgnores: ['**/evidence/**', 'evidence/**'],
         maximumFileSizeToCacheInBytes: 2 * 1024 * 1024,
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         navigateFallback: 'index.html',
         importScripts: ['/push-sw.js'],
         runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname === '/actualizar.html',
+            handler: 'NetworkOnly',
+            options: { cacheName: 'yaavs-update-page' },
+          },
           {
             urlPattern: ({ url }) => url.pathname.startsWith('/evidence/'),
             handler: 'NetworkOnly',
