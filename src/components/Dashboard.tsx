@@ -64,6 +64,9 @@ const TeamChatView = lazy(() =>
 const ProjectsHub = lazy(() =>
   import('./ProjectsHub').then((m) => ({ default: m.ProjectsHub })),
 );
+const FormulariosView = lazy(() =>
+  import('./FormulariosView').then((m) => ({ default: m.FormulariosView })),
+);
 const AttendanceView = lazy(() =>
   import('./AttendanceView').then((m) => ({ default: m.AttendanceView })),
 );
@@ -112,6 +115,7 @@ const NAV: {
   { id: 'team', label: 'Equipo', icon: 'team' },
   { id: 'chat', label: 'Chat', icon: 'chat' },
   { id: 'board', label: 'Proyectos', icon: 'board' },
+  { id: 'formularios', label: 'Formularios', icon: 'formularios' },
   { id: 'avances', label: 'Avances', icon: 'avances' },
   { id: 'attendance', label: 'Asistencia', icon: 'attendance', allowEmployeeIds: ATTENDANCE_ALLOWED_EMPLOYEE_IDS },
   { id: 'assignments', label: 'Indicaciones', icon: 'assignments' },
@@ -517,6 +521,10 @@ export function Dashboard() {
     board: {
       title: 'Proyectos creativos',
       sub: canEditAll ? 'Solicitudes y producción — Marketing Yaavs' : 'Tus proyectos asignados',
+    },
+    formularios: {
+      title: 'Formularios',
+      sub: 'Directorio de paneles Yaavs — sin salir del dashboard',
     },
     completed: {
       title: 'Trabajos concluidos',
@@ -930,6 +938,7 @@ export function Dashboard() {
               }}
             />
           )}
+          {view === 'formularios' && <FormulariosView />}
           {view === 'attendance' && canSeeAttendance && <AttendanceView />}
           {view === 'avances' && <AvancesView />}
           {view === 'assignments' && <AssignmentsView />}
