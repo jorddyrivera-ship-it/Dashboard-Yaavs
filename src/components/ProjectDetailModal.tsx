@@ -358,20 +358,24 @@ export function ProjectDetailModal({
     }
     setProgressBusy(true);
     try {
-      const ok = await addProjectProgress(projectId, {
+      const result = await addProjectProgress(projectId, {
         text: progressText,
         linksNote: !canEditAll ? progressLinksNote.trim() || undefined : undefined,
         files: progressFiles.length ? progressFiles : undefined,
       });
-      if (ok) {
+      if (result.ok) {
         setProgressText('');
         setProgressLinksNote('');
         setProgressFiles([]);
-        toast.success('Avance registrado. Orlando recibirá la notificación.');
+        if (result.error) {
+          toast.info(
+            `Avance guardado sin archivo: ${result.error}. Reintenta con un archivo más liviano o un link.`,
+          );
+        } else {
+          toast.success('Avance registrado. Orlando recibirá la notificación.');
+        }
       } else {
-        toast.error(
-          'No se pudo registrar el avance. Si el archivo es muy pesado, comprímelo o usa un link.',
-        );
+        toast.error(result.error || 'No se pudo registrar el avance.');
       }
     } finally {
       setProgressBusy(false);

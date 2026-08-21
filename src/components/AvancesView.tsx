@@ -73,7 +73,8 @@ export function AvancesView() {
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
   const allFeedItems = useMemo(() => {
-    const source = canEditAll ? visibleProjects : myProjects;
+    // Gerencia: todos los proyectos (también concluidos). Colaborador: solo los suyos activos.
+    const source = canEditAll ? allProjects : myProjects;
     const items: FeedItem[] = [];
     for (const p of source) {
       for (const up of p.progressUpdates ?? []) {
@@ -89,23 +90,42 @@ export function AvancesView() {
       (a, b) =>
         new Date(b.update.createdAt).getTime() - new Date(a.update.createdAt).getTime(),
     );
-  }, [canEditAll, visibleProjects, myProjects, user?.id]);
+  }, [canEditAll, allProjects, myProjects, user?.id]);
 
   const teamMembers = useMemo((): TeamMemberRow[] => {
-    const byAuthor = new Map<string, FeedItem[]>();
-    for (const item of allFeedItems) {
-      const key = item.update.authorId || item.update.authorName || 'unknown';
-      const list = byAuthor.get(key) ?? [];
-      list.push(item);
-      byAuthor.set(key, list);
-    }
-
     const employees = activeUsers
       .filter((u) => u.role === 'empleado' && u.employeeId)
       .sort((a, b) => a.name.localeCompare(b.name, 'es'));
 
+    const projectById = new Map(allProjects.map((p) => [p.id, p]));
+
     const rows: TeamMemberRow[] = employees.map((u) => {
-      const items = byAuthor.get(u.id) ?? [];
+      const items: FeedItem[] = [];
+      const seen = new Set<string>();
+      for (const item of allFeedItems) {
+        const uid = item.update.id;
+        // 1) Avances que escribió esta persona
+        if (item.update.authorId === u.id) {
+          if (!seen.has(uid)) {
+            seen.add(uid);
+            items.push(item);
+          }
+          continue;
+        }
+        // 2) Avances en proyectos asignados a ella (aunque los suba Orlando u otro)
+        if (!u.employeeId) continue;
+        const project = projectById.get(item.projectId);
+        if (!project) continue;
+        const assigned = projectsAssignedToEmployee([project], u.employeeId, activeUsers);
+        if (assigned.length && !seen.has(uid)) {
+          seen.add(uid);
+          items.push(item);
+        }
+      }
+      items.sort(
+        (a, b) =>
+          new Date(b.update.createdAt).getTime() - new Date(a.update.createdAt).getTime(),
+      );
       return {
         userId: u.id,
         name: u.name,
@@ -115,21 +135,24 @@ export function AvancesView() {
       };
     });
 
-    // Avances de autores que ya no están en el roster (o admin/líder)
-    for (const [authorId, items] of byAuthor) {
+    // Autores que no son colaboradores del roster (p. ej. líderes)
+    for (const item of allFeedItems) {
+      const authorId = item.update.authorId || item.update.authorName || 'unknown';
       if (rows.some((r) => r.userId === authorId)) continue;
-      const name = items[0]?.update.authorName || 'Sin nombre';
+      const authored = allFeedItems.filter(
+        (i) => (i.update.authorId || i.update.authorName || 'unknown') === authorId,
+      );
       rows.push({
         userId: authorId,
-        name,
+        name: authored[0]?.update.authorName || 'Sin nombre',
         avatarColor: '#94a3b8',
-        count: items.length,
-        items,
+        count: authored.length,
+        items: authored,
       });
     }
 
     return rows.sort((a, b) => a.name.localeCompare(b.name, 'es'));
-  }, [activeUsers, allFeedItems]);
+  }, [activeUsers, allFeedItems, allProjects]);
 
   const selectedMember =
     teamMembers.find((m) => m.userId === selectedMemberId) ?? null;
@@ -147,25 +170,29 @@ export function AvancesView() {
     }
     setBusy(true);
     try {
-      const ok = await addProjectProgress(selected.id, {
+      const result = await addProjectProgress(selected.id, {
         text,
         linksNote: linksNote.trim() || undefined,
         files: files.length ? files.slice(0, MAX_PROGRESS_FILES) : undefined,
       });
-      if (ok) {
+      if (result.ok) {
         const n = files.length;
         setText('');
         setLinksNote('');
         setFiles([]);
-        toast.success(
-          n > 0
-            ? `Avance registrado con ${n} evidencia${n === 1 ? '' : 's'}. Orlando ya fue notificado.`
-            : 'Avance registrado. Orlando ya fue notificado.',
-        );
+        if (result.error) {
+          toast.info(
+            `Avance guardado sin archivo: ${result.error}. Puedes reintentar con un archivo más liviano o un link.`,
+          );
+        } else {
+          toast.success(
+            n > 0
+              ? `Avance registrado con ${n} evidencia${n === 1 ? '' : 's'}. Orlando ya fue notificado.`
+              : 'Avance registrado. Orlando ya fue notificado.',
+          );
+        }
       } else {
-        toast.error(
-          'No se pudo registrar el avance. Si subiste un archivo grande, comprímelo o pega un link.',
-        );
+        toast.error(result.error || 'No se pudo registrar el avance.');
       }
     } finally {
       setBusy(false);

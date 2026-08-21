@@ -395,7 +395,7 @@ interface AppContextValue {
       images?: { name: string; dataUrl: string }[];
       files?: FileAttachment[];
     },
-  ) => Promise<boolean>;
+  ) => Promise<{ ok: boolean; error?: string }>;
   deleteProjectProgress: (projectId: string, updateId: string) => void;
   officeOvertime: OfficeOvertimeStore;
   startOfficeOvertime: () => boolean;
@@ -4784,25 +4784,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
         images?: { name: string; dataUrl: string }[];
         files?: FileAttachment[];
       },
-    ): Promise<boolean> => {
-      if (!user) return false;
+    ): Promise<{ ok: boolean; error?: string }> => {
+      if (!user) return { ok: false, error: 'Sesión no válida' };
       const current = board.projects?.find((p) => p.id === projectId);
-      if (!current) return false;
+      if (!current) return { ok: false, error: 'Proyecto no encontrado' };
       const clean = input.text.trim();
       const linksNote = (input.linksNote ?? '').trim().slice(0, 2000) || undefined;
-      if (!clean && !linksNote && !input.images?.length && !input.files?.length) return false;
+      if (!clean && !linksNote && !input.images?.length && !input.files?.length) {
+        return { ok: false, error: 'Escribe un avance o adjunta una evidencia' };
+      }
 
       let files = input.files?.length
         ? input.files.slice(0, MAX_PROGRESS_FILES)
         : undefined;
-      // Subir evidencias al servidor ANTES del sync (si no, se perdían al vaciar dataUrls).
+      let fileWarning: string | undefined;
+      // Subir evidencias al servidor ANTES del sync.
       if (files?.length && isApiEnabled()) {
         const uploaded = await uploadEvidenceAttachments(files);
         if (!uploaded.ok) {
-          console.error('[avances] upload evidence failed:', uploaded.error);
-          return false;
+          // Si hay texto/links, igual guardamos el avance sin archivo.
+          if (clean || linksNote) {
+            files = undefined;
+            fileWarning = uploaded.error;
+          } else {
+            return { ok: false, error: uploaded.error };
+          }
+        } else {
+          files = uploaded.files;
         }
-        files = uploaded.files;
       }
       const images = input.images?.length
         ? input.images.slice(0, MAX_PROGRESS_FILES)
@@ -4848,7 +4857,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         url: '/avances',
         tag: `progress-${projectId}`,
       });
-      return true;
+      return { ok: true, error: fileWarning };
     },
     [board.projects, user, logActivity],
   );
