@@ -38,6 +38,7 @@ import {
   triggerGoogleCalendarSync,
 } from '../api/client';
 import { uploadEvidenceAttachments } from '../api/evidence';
+import { postProjectProgress } from '../api/progress';
 import { saveAssignmentAttachments } from '../utils/attachmentStore';
 import {
   syncCalendarForReminders,
@@ -4826,16 +4827,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
         files,
         createdAt: new Date().toISOString(),
       };
-      const progressUpdates = [...(current.progressUpdates ?? []), update].slice(-30);
+      const previousUpdates = current.progressUpdates ?? [];
+      const progressUpdates = [...previousUpdates, update].slice(-30);
+      const updatedAt = new Date().toISOString();
 
       setBoard((prev) => ({
         ...prev,
         projects: (prev.projects ?? []).map((p) =>
           p.id === projectId
-            ? { ...p, progressUpdates, updatedAt: new Date().toISOString() }
+            ? { ...p, progressUpdates, updatedAt }
             : p,
         ),
       }));
+
+      // Guardado directo en servidor (no depende del sync completo).
+      if (isApiEnabled()) {
+        const posted = await postProjectProgress(projectId, update);
+        if (!posted.ok) {
+          setBoard((prev) => ({
+            ...prev,
+            projects: (prev.projects ?? []).map((p) =>
+              p.id === projectId
+                ? { ...p, progressUpdates: previousUpdates, updatedAt: current.updatedAt }
+                : p,
+            ),
+          }));
+          return {
+            ok: false,
+            error:
+              posted.error ||
+              'El avance no llegó al servidor. Revisa tu conexión e inténtalo de nuevo.',
+          };
+        }
+      }
+
       window.setTimeout(() => schedulePushRef.current({ immediate: true }), 0);
       const fileCount = files?.length ?? images?.length ?? 0;
       const evidenceLabel =

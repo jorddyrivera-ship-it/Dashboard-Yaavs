@@ -538,3 +538,60 @@ export async function saveAppState(body, { allowEmpty = false } = {}) {
     'No se pudo guardar el estado';
   throw new Error(message);
 }
+
+/**
+ * Agrega un avance a un proyecto sin depender del sync completo del cliente.
+ * Así Noemí (u otro colaborador) puede registrar evidencias aunque el PUT /api/state falle.
+ */
+export async function appendProjectProgress(projectId, update) {
+  const id = String(projectId || '').trim();
+  if (!id) throw new Error('Falta projectId');
+  if (!update || typeof update !== 'object' || !update.id) {
+    throw new Error('Avance inválido');
+  }
+
+  const existing = await loadAppState();
+  const projects = Array.isArray(existing?.board?.projects)
+    ? [...existing.board.projects]
+    : [];
+  const idx = projects.findIndex((p) => p?.id === id);
+  if (idx < 0) throw new Error('Proyecto no encontrado');
+
+  const project = projects[idx];
+  const list = Array.isArray(project.progressUpdates) ? [...project.progressUpdates] : [];
+  const existingIdx = list.findIndex((u) => u?.id === update.id);
+  const nextUpdate = {
+    id: String(update.id),
+    authorId: String(update.authorId || ''),
+    authorName: String(update.authorName || '').slice(0, 120),
+    text: String(update.text || '').slice(0, 1200),
+    linksNote: update.linksNote
+      ? String(update.linksNote).slice(0, 2000)
+      : undefined,
+    images: Array.isArray(update.images) ? update.images.slice(0, 12) : undefined,
+    files: Array.isArray(update.files) ? update.files.slice(0, 12) : undefined,
+    createdAt: String(update.createdAt || new Date().toISOString()),
+  };
+  if (existingIdx >= 0) list[existingIdx] = { ...list[existingIdx], ...nextUpdate };
+  else list.push(nextUpdate);
+
+  projects[idx] = {
+    ...project,
+    progressUpdates: list.slice(-30),
+    updatedAt: new Date().toISOString(),
+  };
+
+  const saved = await saveAppState({
+    ...existing,
+    board: {
+      ...(existing.board || {}),
+      projects,
+    },
+  });
+  return {
+    ok: true,
+    updatedAt: saved.updatedAt,
+    projectId: id,
+    updateId: nextUpdate.id,
+  };
+}

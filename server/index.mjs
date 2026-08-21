@@ -12,7 +12,7 @@ import {
   readLocalLibraryFile,
 } from './mediaLibraryStore.mjs';
 import { buildMediaCatalog, enrichLibraryItem, resolveLibraryImageUrl } from './mediaApiFormat.mjs';
-import { emptyAppState, loadAppState, saveAppState } from './appStateStore.mjs';
+import { emptyAppState, loadAppState, saveAppState, appendProjectProgress } from './appStateStore.mjs';
 import { readEvidenceFile, saveEvidenceUpload } from './evidenceStore.mjs';
 import {
   resolveReminderEmail,
@@ -112,6 +112,18 @@ app.post('/api/evidence', async (req, res) => {
     res.status(400).json({
       ok: false,
       error: error instanceof Error ? error.message : 'No se pudo guardar la evidencia',
+    });
+  }
+});
+
+app.post('/api/progress', async (req, res) => {
+  try {
+    const result = await appendProjectProgress(req.body?.projectId, req.body?.update);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error instanceof Error ? error.message : 'No se pudo registrar el avance',
     });
   }
 });

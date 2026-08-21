@@ -128,54 +128,40 @@
 
         async function mergeIntoServer() {
           btn.disabled = true;
-          resultEl.textContent = 'Descargando estado del servidor…';
+          resultEl.textContent = 'Subiendo avances…';
           try {
-            var remoteRes = await fetch('/api/state');
-            if (!remoteRes.ok) throw new Error('No se pudo leer /api/state');
-            var remote = await remoteRes.json();
-            if (!remote.board) remote.board = { projects: [], tasks: [], companyName: 'Yaavs' };
-            if (!Array.isArray(remote.board.projects)) remote.board.projects = [];
-
-            var byId = new Map(remote.board.projects.map(function (p) { return [p.id, p]; }));
             var mergedCount = 0;
-            found.forEach(function (row) {
-              var p = byId.get(row.projectId);
-              if (!p) {
-                // Proyecto solo local: no lo inventamos entero; solo avisamos.
-                return;
+            var errors = [];
+            for (var i = 0; i < found.length; i += 1) {
+              var row = found[i];
+              var res = await fetch('/api/progress', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ projectId: row.projectId, update: row.update }),
+              });
+              var body = await res.json().catch(function () { return {}; });
+              if (!res.ok || body.ok === false) {
+                errors.push(body.error || ('HTTP ' + res.status + ' en ' + row.projectName));
+                continue;
               }
-              var list = Array.isArray(p.progressUpdates) ? p.progressUpdates.slice() : [];
-              if (list.some(function (u) { return u.id === row.update.id; })) return;
-              list.push(row.update);
-              p.progressUpdates = list;
-              p.updatedAt = new Date().toISOString();
-              byId.set(p.id, p);
               mergedCount += 1;
-            });
+            }
 
             if (!mergedCount) {
               resultEl.innerHTML =
-                '<span class="err">No se pudo fusionar (¿el proyecto ya no existe en el servidor?). Revisa la lista arriba.</span>';
+                '<span class="err">No se pudo subir. ' +
+                (errors[0] || 'Revisa la lista o vuelve a registrar el avance en Avances.') +
+                '</span>';
               btn.disabled = false;
               return;
-            }
-
-            remote.board.projects = Array.from(byId.values());
-            remote.updatedAt = new Date().toISOString();
-            resultEl.textContent = 'Subiendo ' + mergedCount + ' avance(s)…';
-            var put = await fetch('/api/state', {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(remote),
-            });
-            var body = await put.json().catch(function () { return {}; });
-            if (!put.ok) {
-              throw new Error(body.error || 'PUT /api/state falló (' + put.status + ')');
             }
             resultEl.innerHTML =
               '<span class="ok">Listo: se subieron ' +
               mergedCount +
-              ' avance(s). Orlando ya puede verlos en Avances (recarga el dashboard).</span>';
+              ' avance(s). Orlando ya puede verlos en Avances (recarga el dashboard).</span>' +
+              (errors.length
+                ? '<div class="err">Algunos fallaron: ' + errors.join(' · ') + '</div>'
+                : '');
           } catch (e) {
             resultEl.innerHTML =
               '<span class="err">Error: ' + (e && e.message ? e.message : String(e)) + '</span>';
