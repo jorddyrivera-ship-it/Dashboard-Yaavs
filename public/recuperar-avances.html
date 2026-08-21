@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recuperar avances — Yaavs</title>
+    <style>
+      body {
+        font-family: Figtree, system-ui, sans-serif;
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 1.5rem;
+        color: #0f172a;
+        background: #f8fafc;
+      }
+      h1 { font-size: 1.35rem; margin: 0 0 0.5rem; }
+      p { color: #475569; line-height: 1.45; }
+      .card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem 1.1rem;
+        margin: 0.75rem 0;
+      }
+      .meta { font-size: 0.85rem; color: #64748b; }
+      button {
+        background: #0055ff;
+        color: #fff;
+        border: 0;
+        border-radius: 10px;
+        padding: 0.7rem 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:disabled { opacity: 0.55; cursor: not-allowed; }
+      .ok { color: #047857; font-weight: 600; }
+      .err { color: #b91c1c; font-weight: 600; }
+      code { background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 4px; }
+      ul { padding-left: 1.1rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Recuperar avances locales</h1>
+    <p>
+      Esta página lee los avances guardados en <strong>este navegador</strong> y los vuelve a
+      subir al servidor para que Orlando los vea. Debe abrirla la persona que subió el avance
+      (por ejemplo Noemí), en la misma computadora/navegador donde lo registró.
+    </p>
+    <p id="status" class="meta">Buscando en este navegador…</p>
+    <div id="list"></div>
+    <p style="margin-top: 1rem">
+      <button id="btn" type="button" disabled>Subir avances encontrados al servidor</button>
+    </p>
+    <p id="result"></p>
+
+    <script>
+      (function () {
+        var STORAGE_KEY = 'empresa-board-v1';
+        var statusEl = document.getElementById('status');
+        var listEl = document.getElementById('list');
+        var btn = document.getElementById('btn');
+        var resultEl = document.getElementById('result');
+        var found = [];
+
+        function isNoemi(u) {
+          var id = String(u.authorId || '');
+          var name = String(u.authorName || '').toLowerCase();
+          return id === 'u-noemi' || name.indexOf('noem') !== -1;
+        }
+
+        function loadLocal() {
+          try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+          } catch (e) {
+            return null;
+          }
+        }
+
+        function scan() {
+          found = [];
+          var board = loadLocal();
+          if (!board || !Array.isArray(board.projects)) {
+            statusEl.textContent =
+              'No hay tablero local en este navegador. Abre esta página donde Noemí inició sesión y subió el avance.';
+            return;
+          }
+          board.projects.forEach(function (p) {
+            (p.progressUpdates || []).forEach(function (u) {
+              if (!isNoemi(u)) return;
+              found.push({
+                projectId: p.id,
+                projectName: p.projectName || '(sin nombre)',
+                update: u,
+              });
+            });
+          });
+          if (!found.length) {
+            statusEl.innerHTML =
+              'No se encontraron avances de Noemí en este navegador. ' +
+              'Si ya sincronizó después y el servidor no los tenía, el navegador pudo haberlos borrado. ' +
+              'En ese caso hay que <strong>volver a subir</strong> el avance.';
+            return;
+          }
+          statusEl.textContent =
+            'Se encontraron ' + found.length + ' avance(s) de Noemí en este navegador.';
+          listEl.innerHTML = found
+            .map(function (row, i) {
+              var files = (row.update.files || []).length;
+              var text = (row.update.text || '').slice(0, 180) || '(sin texto)';
+              return (
+                '<div class="card"><div class="meta">#' +
+                (i + 1) +
+                ' · ' +
+                row.projectName +
+                ' · ' +
+                (row.update.createdAt || '') +
+                (files ? ' · ' + files + ' archivo(s)' : '') +
+                '</div><div>' +
+                text.replace(/</g, '&lt;') +
+                '</div></div>'
+              );
+            })
+            .join('');
+          btn.disabled = false;
+        }
+
+        async function mergeIntoServer() {
+          btn.disabled = true;
+          resultEl.textContent = 'Descargando estado del servidor…';
+          try {
+            var remoteRes = await fetch('/api/state');
+            if (!remoteRes.ok) throw new Error('No se pudo leer /api/state');
+            var remote = await remoteRes.json();
+            if (!remote.board) remote.board = { projects: [], tasks: [], companyName: 'Yaavs' };
+            if (!Array.isArray(remote.board.projects)) remote.board.projects = [];
+
+            var byId = new Map(remote.board.projects.map(function (p) { return [p.id, p]; }));
+            var mergedCount = 0;
+            found.forEach(function (row) {
+              var p = byId.get(row.projectId);
+              if (!p) {
+                // Proyecto solo local: no lo inventamos entero; solo avisamos.
+                return;
+              }
+              var list = Array.isArray(p.progressUpdates) ? p.progressUpdates.slice() : [];
+              if (list.some(function (u) { return u.id === row.update.id; })) return;
+              list.push(row.update);
+              p.progressUpdates = list;
+              p.updatedAt = new Date().toISOString();
+              byId.set(p.id, p);
+              mergedCount += 1;
+            });
+
+            if (!mergedCount) {
+              resultEl.innerHTML =
+                '<span class="err">No se pudo fusionar (¿el proyecto ya no existe en el servidor?). Revisa la lista arriba.</span>';
+              btn.disabled = false;
+              return;
+            }
+
+            remote.board.projects = Array.from(byId.values());
+            remote.updatedAt = new Date().toISOString();
+            resultEl.textContent = 'Subiendo ' + mergedCount + ' avance(s)…';
+            var put = await fetch('/api/state', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(remote),
+            });
+            var body = await put.json().catch(function () { return {}; });
+            if (!put.ok) {
+              throw new Error(body.error || 'PUT /api/state falló (' + put.status + ')');
+            }
+            resultEl.innerHTML =
+              '<span class="ok">Listo: se subieron ' +
+              mergedCount +
+              ' avance(s). Orlando ya puede verlos en Avances (recarga el dashboard).</span>';
+          } catch (e) {
+            resultEl.innerHTML =
+              '<span class="err">Error: ' + (e && e.message ? e.message : String(e)) + '</span>';
+            btn.disabled = false;
+          }
+        }
+
+        btn.addEventListener('click', function () {
+          mergeIntoServer();
+        });
+        scan();
+      })();
+    </script>
+  </body>
+</html>

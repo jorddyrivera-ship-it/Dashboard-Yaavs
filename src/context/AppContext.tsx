@@ -851,6 +851,48 @@ function absorbRemoteExtras(
   return { extras, changed };
 }
 
+/** Une bitácoras de avance por id; no pierde entradas solo-locales ni solo-remotas. */
+function mergeProgressUpdateLists(
+  localList: CreativeProject['progressUpdates'] | undefined,
+  remoteList: CreativeProject['progressUpdates'] | undefined,
+): CreativeProject['progressUpdates'] | undefined {
+  const local = Array.isArray(localList) ? localList : [];
+  const remote = Array.isArray(remoteList) ? remoteList : [];
+  if (!local.length && !remote.length) return localList ?? remoteList;
+  const byId = new Map<string, NonNullable<CreativeProject['progressUpdates']>[number]>();
+  for (const u of remote) {
+    if (u?.id) byId.set(u.id, u);
+  }
+  for (const u of local) {
+    if (!u?.id) continue;
+    const prev = byId.get(u.id);
+    if (!prev) {
+      byId.set(u.id, u);
+      continue;
+    }
+    const prevHas =
+      (prev.files || []).some((f) => (f.dataUrl || '').length > 20) ||
+      (prev.images || []).some((img) => (img.dataUrl || '').length > 20);
+    const localHas =
+      (u.files || []).some((f) => (f.dataUrl || '').length > 20) ||
+      (u.images || []).some((img) => (img.dataUrl || '').length > 20);
+    byId.set(
+      u.id,
+      localHas && !prevHas
+        ? u
+        : {
+            ...prev,
+            ...u,
+            files: u.files?.length ? u.files : prev.files,
+            images: u.images?.length ? u.images : prev.images,
+          },
+    );
+  }
+  return [...byId.values()].sort((a, b) =>
+    (a.createdAt || '').localeCompare(b.createdAt || ''),
+  );
+}
+
 /** Conserva evidencias en el sync; el server las mueve a /api/evidence/... */
 function leanProgressForSync(
   updates: CreativeProject['progressUpdates'],
@@ -858,7 +900,6 @@ function leanProgressForSync(
   if (!updates?.length) return updates;
   return updates.map((up) => ({
     ...up,
-    // Antes se vaciaba dataUrl aquí y Orlando no veía archivos del equipo.
     images: up.images,
     files: up.files,
   }));
@@ -1951,6 +1992,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             ...rp,
             ...lp,
             status: 'terminado',
+            progressUpdates: mergeProgressUpdateLists(lp.progressUpdates, rp.progressUpdates),
             attachments: lp.attachments?.length ? lp.attachments : rp.attachments,
             attachmentCount: lp.attachments?.length
               ? lp.attachments.length
@@ -1963,11 +2005,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
           lp.acceptanceStatus === 'accepted' || lp.acceptanceStatus === 'declined';
         const remoteStillPending =
           !rp.acceptanceStatus || rp.acceptanceStatus === 'pending';
+        const mergedProgress = mergeProgressUpdateLists(lp.progressUpdates, rp.progressUpdates);
         if (localNewer || (localAccepted && remoteStillPending)) {
           preservedLocal = true;
           byId.set(lp.id, {
             ...rp,
             ...lp,
+            progressUpdates: mergedProgress,
             attachments: lp.attachments?.length ? lp.attachments : rp.attachments,
             attachmentCount: lp.attachments?.length
               ? lp.attachments.length
@@ -1976,9 +2020,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         } else if (lp.attachments?.length) {
           byId.set(lp.id, {
             ...rp,
+            progressUpdates: mergedProgress,
             attachments: lp.attachments,
             attachmentCount: lp.attachments.length,
           });
+        } else if (
+          (lp.progressUpdates?.length || 0) > (rp.progressUpdates?.length || 0) ||
+          (mergedProgress?.length || 0) > (rp.progressUpdates?.length || 0)
+        ) {
+          preservedLocal = true;
+          byId.set(lp.id, { ...rp, progressUpdates: mergedProgress });
         }
       }
 
