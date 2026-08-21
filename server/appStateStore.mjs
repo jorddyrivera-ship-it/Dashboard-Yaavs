@@ -222,14 +222,20 @@ function mergeKeepExistingProjects(incoming, existing, deletedProjectIds) {
       continue;
     }
     if (String(p.updatedAt || '') >= String(cur.updatedAt || '')) {
-      byId.set(p.id, {
+      // Permite borrar avances cuando el cliente manda replaceProgress: true
+      const progressUpdates = p.replaceProgress
+        ? (Array.isArray(p.progressUpdates) ? p.progressUpdates : [])
+        : mergeProgressUpdatesKeepEvidence(
+            p.progressUpdates,
+            cur.progressUpdates,
+          );
+      const next = {
         ...cur,
         ...p,
-        progressUpdates: mergeProgressUpdatesKeepEvidence(
-          p.progressUpdates,
-          cur.progressUpdates,
-        ),
-      });
+        progressUpdates,
+      };
+      delete next.replaceProgress;
+      byId.set(p.id, next);
     }
   }
   return {
