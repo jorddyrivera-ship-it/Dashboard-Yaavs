@@ -37,6 +37,7 @@ import {
   pushSyncState,
   triggerGoogleCalendarSync,
 } from '../api/client';
+import { uploadEvidenceAttachments } from '../api/evidence';
 import { saveAssignmentAttachments } from '../utils/attachmentStore';
 import {
   syncCalendarForReminders,
@@ -394,7 +395,7 @@ interface AppContextValue {
       images?: { name: string; dataUrl: string }[];
       files?: FileAttachment[];
     },
-  ) => boolean;
+  ) => Promise<boolean>;
   deleteProjectProgress: (projectId: string, updateId: string) => void;
   officeOvertime: OfficeOvertimeStore;
   startOfficeOvertime: () => boolean;
@@ -850,21 +851,16 @@ function absorbRemoteExtras(
   return { extras, changed };
 }
 
-/** Quita adjuntos inline del sync; las evidencias de avance las externaliza el server. */
-function stripInlineDataUrl<T extends { dataUrl?: string }>(item: T): T {
-  const url = item.dataUrl ?? '';
-  if (!url.startsWith('data:')) return item;
-  return { ...item, dataUrl: '' };
-}
-
+/** Conserva evidencias en el sync; el server las mueve a /api/evidence/... */
 function leanProgressForSync(
   updates: CreativeProject['progressUpdates'],
 ): CreativeProject['progressUpdates'] {
   if (!updates?.length) return updates;
   return updates.map((up) => ({
     ...up,
-    images: up.images?.map(stripInlineDataUrl),
-    files: up.files?.map(stripInlineDataUrl),
+    // Antes se vaciaba dataUrl aquí y Orlando no veía archivos del equipo.
+    images: up.images,
+    files: up.files,
   }));
 }
 
@@ -4729,7 +4725,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const addProjectProgress = useCallback(
-    (
+    async (
       projectId: string,
       input: {
         text: string;
@@ -4737,7 +4733,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         images?: { name: string; dataUrl: string }[];
         files?: FileAttachment[];
       },
-    ): boolean => {
+    ): Promise<boolean> => {
       if (!user) return false;
       const current = board.projects?.find((p) => p.id === projectId);
       if (!current) return false;
@@ -4745,9 +4741,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const linksNote = (input.linksNote ?? '').trim().slice(0, 2000) || undefined;
       if (!clean && !linksNote && !input.images?.length && !input.files?.length) return false;
 
-      const files = input.files?.length
+      let files = input.files?.length
         ? input.files.slice(0, MAX_PROGRESS_FILES)
         : undefined;
+      // Subir evidencias al servidor ANTES del sync (si no, se perdían al vaciar dataUrls).
+      if (files?.length && isApiEnabled()) {
+        const uploaded = await uploadEvidenceAttachments(files);
+        if (!uploaded.ok) {
+          console.error('[avances] upload evidence failed:', uploaded.error);
+          return false;
+        }
+        files = uploaded.files;
+      }
       const images = input.images?.length
         ? input.images.slice(0, MAX_PROGRESS_FILES)
         : undefined;
@@ -4771,6 +4776,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             : p,
         ),
       }));
+      window.setTimeout(() => schedulePushRef.current({ immediate: true }), 0);
       const fileCount = files?.length ?? images?.length ?? 0;
       const evidenceLabel =
         fileCount > 0
@@ -4782,7 +4788,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         `Avance en «${current.projectName || 'proyecto'}»: ${clean.slice(0, 80) || linksNote?.slice(0, 80) || 'evidencia subida'}${evidenceLabel}${linksLabel}`,
         user.name,
       );
-      // Avisa a Orlando (y Carlos) del avance + evidencias.
       notifyPush({
         audience: 'employees',
         employeeIds: ['emp-orlando', 'emp-juancarlos'],

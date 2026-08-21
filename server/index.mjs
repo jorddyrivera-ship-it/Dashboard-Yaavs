@@ -13,7 +13,7 @@ import {
 } from './mediaLibraryStore.mjs';
 import { buildMediaCatalog, enrichLibraryItem, resolveLibraryImageUrl } from './mediaApiFormat.mjs';
 import { emptyAppState, loadAppState, saveAppState } from './appStateStore.mjs';
-import { readEvidenceFile } from './evidenceStore.mjs';
+import { readEvidenceFile, saveEvidenceUpload } from './evidenceStore.mjs';
 import {
   resolveReminderEmail,
   sendCalendarReminderEmail,
@@ -96,6 +96,24 @@ app.get('/api/evidence/:filename', (req, res) => {
     `inline; filename="${encodeURIComponent(file.filename)}"`,
   );
   res.send(file.buffer);
+});
+
+app.post('/api/evidence', async (req, res) => {
+  try {
+    const result = saveEvidenceUpload({
+      id: req.body?.id,
+      name: req.body?.name,
+      mimeType: req.body?.mimeType,
+      dataUrl: req.body?.dataUrl,
+      base64: req.body?.base64,
+    });
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error instanceof Error ? error.message : 'No se pudo guardar la evidencia',
+    });
+  }
 });
 
 app.get('/api/state', async (req, res) => {

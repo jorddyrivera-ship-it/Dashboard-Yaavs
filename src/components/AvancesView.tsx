@@ -136,7 +136,7 @@ export function AvancesView() {
 
   const recentFeed = useMemo(() => allFeedItems.slice(0, 40), [allFeedItems]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selected) {
       toast.info('Elige un proyecto primero.');
       return;
@@ -147,7 +147,7 @@ export function AvancesView() {
     }
     setBusy(true);
     try {
-      const ok = addProjectProgress(selected.id, {
+      const ok = await addProjectProgress(selected.id, {
         text,
         linksNote: linksNote.trim() || undefined,
         files: files.length ? files.slice(0, MAX_PROGRESS_FILES) : undefined,
@@ -163,7 +163,9 @@ export function AvancesView() {
             : 'Avance registrado. Orlando ya fue notificado.',
         );
       } else {
-        toast.error('No se pudo registrar el avance.');
+        toast.error(
+          'No se pudo registrar el avance. Si subiste un archivo grande, comprímelo o pega un link.',
+        );
       }
     } finally {
       setBusy(false);

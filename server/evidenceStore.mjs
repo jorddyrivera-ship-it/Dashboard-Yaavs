@@ -97,6 +97,50 @@ export function persistEvidenceDataUrl(file, hintId) {
   };
 }
 
+/**
+ * Guarda evidencia desde un data URL (o base64) y devuelve la URL pública.
+ * Usado por POST /api/evidence para que el cliente suba antes del sync.
+ */
+export function saveEvidenceUpload(input = {}) {
+  if (!ensureDir()) {
+    throw new Error('Almacenamiento de evidencias no disponible en este servidor');
+  }
+  const id = safeId(input.id || `ev-${Date.now()}`);
+  const name = String(input.name || 'evidencia').slice(0, 200);
+  let mime = String(input.mimeType || 'application/octet-stream');
+  let buffer = null;
+
+  if (typeof input.dataUrl === 'string' && input.dataUrl.startsWith('data:')) {
+    const parsed = parseDataUrl(input.dataUrl);
+    if (!parsed?.buffer?.length) throw new Error('dataUrl inválido');
+    buffer = parsed.buffer;
+    mime = input.mimeType || parsed.mime || mime;
+  } else if (typeof input.base64 === 'string' && input.base64.trim()) {
+    buffer = Buffer.from(input.base64.replace(/\s/g, ''), 'base64');
+  } else {
+    throw new Error('Falta dataUrl o base64');
+  }
+
+  if (!buffer?.length) throw new Error('Archivo vacío');
+  // ~35 MB en disco; evita saturar el plan de Hostinger.
+  if (buffer.length > 35 * 1024 * 1024) {
+    throw new Error('El archivo supera 35 MB. Comprime o sube un link en el avance.');
+  }
+
+  const ext = extFor(mime, name);
+  const filename = `${id}.${ext}`;
+  const full = path.join(EVIDENCE_DIR, filename);
+  fs.writeFileSync(full, buffer);
+  return {
+    ok: true,
+    url: `/api/evidence/${filename}`,
+    filename,
+    mimeType: mime,
+    size: buffer.length,
+    name,
+  };
+}
+
 function externalizeFile(file, hintId) {
   if (!file || typeof file !== 'object') return file;
   const dataUrl = file.dataUrl;

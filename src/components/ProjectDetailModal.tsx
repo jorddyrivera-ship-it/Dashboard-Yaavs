@@ -347,7 +347,7 @@ export function ProjectDetailModal({
       setCompleteBusy(false);
     }
   };
-  const handleSubmitProgress = () => {
+  const handleSubmitProgress = async () => {
     if (!progressText.trim() && !progressLinksNote.trim() && progressFiles.length === 0) {
       toast.info('Escribe qué hiciste, pega un link o sube una evidencia.');
       return;
@@ -358,7 +358,7 @@ export function ProjectDetailModal({
     }
     setProgressBusy(true);
     try {
-      const ok = addProjectProgress(projectId, {
+      const ok = await addProjectProgress(projectId, {
         text: progressText,
         linksNote: !canEditAll ? progressLinksNote.trim() || undefined : undefined,
         files: progressFiles.length ? progressFiles : undefined,
@@ -369,7 +369,9 @@ export function ProjectDetailModal({
         setProgressFiles([]);
         toast.success('Avance registrado. Orlando recibirá la notificación.');
       } else {
-        toast.error('No se pudo registrar el avance.');
+        toast.error(
+          'No se pudo registrar el avance. Si el archivo es muy pesado, comprímelo o usa un link.',
+        );
       }
     } finally {
       setProgressBusy(false);
