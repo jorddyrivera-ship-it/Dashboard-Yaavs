@@ -88,7 +88,7 @@ export function buildPanoramaExportHtml(input: {
     semaphores,
   } = input;
 
-  const team = tasks.filter((t) => t.employeeId !== 'emp-orlando');
+  const team = tasks.filter((t) => t.employeeId !== 'emp-juancarlos');
   const summary = buildMonthPulseSummary(dailyKpiStore, team, monthKey);
   const delivery = buildPanoramaDeliverySummary(allProjects, monthKey);
   const members = buildPanoramaMemberDetails({

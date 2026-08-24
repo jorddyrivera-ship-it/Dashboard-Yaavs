@@ -248,7 +248,7 @@ export function buildPanoramaMemberDetails(input: {
   semaphores?: CollaboratorSemaphore[];
 }): PanoramaMemberDetail[] {
   const { monthKey, tasks, dailyKpiStore, allProjects, attendanceStore } = input;
-  const team = tasks.filter((t) => t.employeeId !== 'emp-orlando');
+  const team = tasks.filter((t) => t.employeeId !== 'emp-juancarlos');
   const summary = buildMonthPulseSummary(dailyKpiStore, team, monthKey);
   const pieSlices = buildTeamPieSlices(team);
   const attendance = summarizeAttendance(attendanceStore, tasks, monthKey);

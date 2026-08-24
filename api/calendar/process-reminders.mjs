@@ -37,7 +37,7 @@ export default async function handler(req, res) {
   const errors = [];
 
   try {
-    const userIds = ['u-orlando'];
+    const userIds = ['u-juancarlos'];
     for (const userId of userIds) {
       const store = await loadUserCalendar(userId);
       if (!store?.events?.length) continue;
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
       for (const event of due) {
         const result = await sendCalendarReminderEmail({
           to: email,
-          userName: store.userName ?? 'Orlando',
+          userName: store.userName ?? 'Carlos',
           event,
         });
         if (result.ok) {

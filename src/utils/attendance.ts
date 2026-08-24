@@ -102,7 +102,7 @@ export function summarizeAttendance(
 ): AttendanceSummary[] {
   const monthRecords = store.records.filter((r) => r.monthKey === monthKey);
   return tasks
-    .filter((t) => t.employeeId !== 'emp-orlando')
+    .filter((t) => t.employeeId !== 'emp-juancarlos')
     .map((t) => {
       const mine = monthRecords.filter((r) => r.employeeId === t.employeeId);
       const count = (status: AttendanceStatus) =>
@@ -230,7 +230,7 @@ export function exportAttendanceCsv(
   monthKey: string,
 ): void {
   const days = workdaysInMonth(monthKey);
-  const team = tasks.filter((t) => t.employeeId !== 'emp-orlando');
+  const team = tasks.filter((t) => t.employeeId !== 'emp-juancarlos');
   const rows: string[][] = [
     ['Colaborador', ...days, 'Asistió', 'Faltas', 'Enfermedad', 'Retardos', 'Vacaciones'],
   ];
@@ -275,7 +275,7 @@ export function buildDemoAttendance(
 ): AttendanceStore {
   const days = workdaysInMonth(monthKey);
   const records: AttendanceRecord[] = [];
-  const team = tasks.filter((t) => t.employeeId !== 'emp-orlando');
+  const team = tasks.filter((t) => t.employeeId !== 'emp-juancarlos');
 
   for (const t of team) {
     days.forEach((dateKey, i) => {
@@ -292,8 +292,8 @@ export function buildDemoAttendance(
         monthKey,
         status,
         notes: '',
-        recordedById: 'u-orlando',
-        recordedByName: 'Orlando',
+        recordedById: 'u-juancarlos',
+        recordedByName: 'Carlos',
         updatedAt: `${dateKey}T18:00:00.000Z`,
       });
     });
@@ -594,7 +594,7 @@ function matchEmployee(
   name: string,
   tasks: EmployeeTask[],
 ): EmployeeTask | undefined {
-  const team = tasks.filter((t) => t.employeeId !== 'emp-orlando');
+  const team = tasks.filter((t) => t.employeeId !== 'emp-juancarlos');
   const q = normalizeForSearch(name).replace(/\./g, ' ');
   if (!q) return undefined;
 
@@ -790,10 +790,10 @@ export function parsePunchClockAttendance(
       (checadorId && CHECADOR_USER_IDS[checadorId]
         ? tasks.find((t) => t.employeeId === CHECADOR_USER_IDS[checadorId])
         : undefined) || matchEmployee(name, tasks);
-    // Orlando / gerente no entra al tablero de asistencias del equipo.
+    // Carlos / gerente no entra al tablero de asistencias del equipo.
     if (
       checadorId === '10671' ||
-      /orlando/i.test(name)
+      /juancarlos|carlos trejo/i.test(name)
     ) {
       continue;
     }

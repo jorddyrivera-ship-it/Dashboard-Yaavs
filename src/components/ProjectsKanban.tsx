@@ -71,7 +71,7 @@ export function ProjectsKanban({ projects, onSelect, statusFilter = 'all' }: Pro
         Columnas de estatus (también las vacías, para ver el avance).{' '}
         {canEditAll
           ? 'Arrastra una tarjeta para cambiar de columna; el equipo lo ve al sincronizar.'
-          : 'Toca una tarjeta para ver el detalle. El estatus lo actualiza Orlando.'}
+          : 'Toca una tarjeta para ver el detalle. El estatus lo actualiza Carlos.'}
       </p>
       <div
         className={`kanban-board${visibleColumns.length <= 3 ? ' kanban-board--wide' : ''}`}

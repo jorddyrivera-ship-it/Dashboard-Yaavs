@@ -2,18 +2,16 @@ import { COMPANY_NAME } from '../constants';
 import { normalizeWhatsAppPhone } from './whatsappPerformance';
 
 /** Gerentes que reciben aviso de "no pude asistir". */
-export const ABSENCE_NOTIFY_EMPLOYEE_IDS = ['emp-orlando', 'emp-juancarlos'] as const;
+export const ABSENCE_NOTIFY_EMPLOYEE_IDS = ['emp-juancarlos'] as const;
 
 /**
  * Teléfonos por defecto (México) si no están en employeePhones.
- * Se pueden sobreescribir con VITE_ORLANDO_WHATSAPP / VITE_JC_WHATSAPP.
+ * Se pueden sobreescribir con VITE_JC_WHATSAPP.
  */
 export const ABSENCE_WHATSAPP_DEFAULTS: Record<string, string> = {
-  'emp-orlando':
-    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ORLANDO_WHATSAPP) ||
-    '',
   'emp-juancarlos':
-    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_JC_WHATSAPP) ||
+    (typeof import.meta !== 'undefined' &&
+      (import.meta.env?.VITE_JC_WHATSAPP || import.meta.env?.VITE_ORLANDO_WHATSAPP)) ||
     '',
 };
 
@@ -56,7 +54,7 @@ export function buildAbsenceWhatsAppUrl(
   return `https://wa.me/?text=${text}`;
 }
 
-/** Abre WhatsApp a Orlando y luego a Carlos (el navegador puede pedir permiso de popups). */
+/** Abre WhatsApp a Carlos y luego a Carlos (el navegador puede pedir permiso de popups). */
 export function openAbsenceWhatsAppToManagers(
   employeeName: string,
   employeePhones: Record<string, string>,

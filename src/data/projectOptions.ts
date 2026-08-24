@@ -79,8 +79,6 @@ export function labelForInternalArea(value: string): string {
 
 export const REQUESTED_BY_OPTIONS = [
   { value: 'Carlos', label: 'Carlos Trejo' },
-  { value: 'Orlando', label: 'Orlando Villagómez' },
-  { value: 'Ambos', label: 'Ambos' },
 ] as const;
 
 export type RequestedByOption = (typeof REQUESTED_BY_OPTIONS)[number]['value'];
@@ -89,14 +87,16 @@ export function normalizeRequestedBy(value: string): RequestedByOption | '' {
   const trimmed = value.trim();
   if (!trimmed) return '';
   const lower = trimmed.toLowerCase();
+  // Legado: Orlando / Ambos → Carlos (gerente actual)
   if (
-    lower === 'ambos' ||
-    (lower.includes('orlando') && lower.includes('carlos'))
+    lower === 'carlos' ||
+    lower.includes('carlos') ||
+    lower === 'orlando' ||
+    lower.startsWith('orlando') ||
+    lower === 'ambos'
   ) {
-    return 'Ambos';
+    return 'Carlos';
   }
-  if (lower === 'orlando' || lower.startsWith('orlando')) return 'Orlando';
-  if (lower === 'carlos' || lower.includes('carlos')) return 'Carlos';
   return '';
 }
 

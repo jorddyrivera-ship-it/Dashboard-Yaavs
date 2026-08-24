@@ -79,7 +79,7 @@ export default async function handler(req, res) {
       200,
       resultHtml({
         ok: true,
-        message: 'Puedes cerrar esta ventana. El dashboard cargará la agenda de Orlando.',
+        message: 'Puedes cerrar esta ventana. El dashboard cargará la agenda de Carlos.',
       }),
     );
   } catch (err) {

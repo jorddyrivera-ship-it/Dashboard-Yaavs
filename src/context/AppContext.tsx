@@ -42,7 +42,7 @@ import { postProjectProgress } from '../api/progress';
 import { saveAssignmentAttachments } from '../utils/attachmentStore';
 import {
   syncCalendarForReminders,
-  notifyOrlandoAgendaAlert,
+  notifyManagerAgendaAlert,
   reminderEmailForUser,
 } from '../api/calendar';
 import { notifyPush, subscribeToPush } from '../api/pushClient';
@@ -231,7 +231,7 @@ interface AppContextValue {
   addCalendarEvent: (
     input: Omit<CalendarEvent, 'id' | 'userId' | 'trackedMinutes' | 'done' | 'remindedAt'>,
   ) => string | null;
-  /** Importa/reemplaza eventos externos (Outlook/ICS) en la agenda de un usuario (p. ej. Orlando). */
+  /** Importa/reemplaza eventos externos (Outlook/ICS) en la agenda de un usuario (p. ej. Carlos). */
   importExternalCalendarEvents: (
     targetUserId: string,
     events: Omit<
@@ -942,17 +942,17 @@ function calendarsFingerprint(store: CalendarStore | undefined): string {
 
 const EXTERNAL_CAL_SOURCES = new Set(['google', 'outlook']);
 
-/** Agenda propia + agenda de Orlando (ocupado visible al equipo). */
+/** Agenda propia + agenda de Carlos (ocupado visible al equipo). */
 function calendarsForViewer(
   store: CalendarStore,
   viewerId: string | null | undefined,
 ): CalendarStore {
   if (!viewerId) {
-    return store['u-orlando'] ? { 'u-orlando': store['u-orlando'] } : {};
+    return store['u-juancarlos'] ? { 'u-juancarlos': store['u-juancarlos'] } : {};
   }
   const next: CalendarStore = {};
   if (store[viewerId]) next[viewerId] = store[viewerId];
-  if (store['u-orlando']) next['u-orlando'] = store['u-orlando'];
+  if (store['u-juancarlos']) next['u-juancarlos'] = store['u-juancarlos'];
   return next;
 }
 
@@ -966,7 +966,7 @@ function onlyOwnCalendarStore(
   return own ? { [viewerId]: own } : {};
 }
 
-/** Une agendas remotas con locales: no borrar importaciones más ricas (p. ej. Outlook de Orlando). */
+/** Une agendas remotas con locales: no borrar importaciones más ricas (p. ej. Outlook de Carlos). */
 function mergeCalendarStores(
   local: CalendarStore,
   remote: CalendarStore | undefined,
@@ -1355,7 +1355,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const extraProjectsRef = useRef(extraProjects);
   extraProjectsRef.current = extraProjects;
   const schedulePushRef = useRef<(opts?: { immediate?: boolean }) => void>(() => {});
-  // Modo espejo oculto: solo la cuenta de Dylan puede observar la vista de Orlando.
+  // Modo espejo oculto: solo la cuenta de Dylan puede observar la vista de Carlos.
   const [spyMode, setSpyMode] = useState(false);
   const realSessionUserId = useRef<string | null>(
     (() => loadAuthSessionId()?.userId ?? null)(),
@@ -1902,8 +1902,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (viewer && prev[viewer] && !mergedPrivate[viewer]) {
           mergedPrivate = { ...mergedPrivate, [viewer]: prev[viewer] };
         }
-        if (prev['u-orlando'] && !mergedPrivate['u-orlando']) {
-          mergedPrivate = { ...mergedPrivate, 'u-orlando': prev['u-orlando'] };
+        if (prev['u-juancarlos'] && !mergedPrivate['u-juancarlos']) {
+          mergedPrivate = { ...mergedPrivate, 'u-juancarlos': prev['u-juancarlos'] };
         }
         if (calendarsFingerprint(prev) === calendarsFingerprint(mergedPrivate)) {
           return prev;
@@ -2104,14 +2104,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { next, preservedLocal: keptCal } = mergeCalendarStores(prev, remote.calendars);
       if (keptCal) preservedLocal = true;
       const visibleNext = calendarsForViewer(next, userKeyRef.current);
-      // Conservar agenda propia / Orlando local si el remoto aún no la trae.
+      // Conservar agenda propia / Carlos local si el remoto aún no la trae.
       const viewer = userKeyRef.current;
       let mergedPrivate = visibleNext;
       if (viewer && prev[viewer] && !mergedPrivate[viewer]) {
         mergedPrivate = { ...mergedPrivate, [viewer]: prev[viewer] };
       }
-      if (prev['u-orlando'] && !mergedPrivate['u-orlando']) {
-        mergedPrivate = { ...mergedPrivate, 'u-orlando': prev['u-orlando'] };
+      if (prev['u-juancarlos'] && !mergedPrivate['u-juancarlos']) {
+        mergedPrivate = { ...mergedPrivate, 'u-juancarlos': prev['u-juancarlos'] };
       }
       if (calendarsFingerprint(prev) === calendarsFingerprint(mergedPrivate)) return prev;
       localStorage.setItem(CALENDAR_STORAGE_KEY, JSON.stringify(mergedPrivate));
@@ -2525,10 +2525,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return subscribeToPush(user, { requestPermission: true });
   }, [user]);
 
-  // Activa la vista de Orlando sin cerrar la sesión real de Dylan.
+  // Activa la vista de Carlos sin cerrar la sesión real de Dylan.
   const enterSpyMode = useCallback(() => {
     if (realSessionUserId.current !== 'u-jorddy') return false;
-    const base = findUserById('u-orlando', teamRoster);
+    const base = findUserById('u-juancarlos', teamRoster);
     if (!base) return false;
     setUser(withUserProfile(base, userProfiles));
     setSpyMode(true);
@@ -2544,7 +2544,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [teamRoster, userProfiles]);
 
   // Secuencia secreta de teclado: solo funciona en la cuenta de Dylan.
-  // Escribir "jorddy" abre la vista de Orlando; escribir "dylan" la cierra.
+  // Escribir "jorddy" abre la vista de Carlos; escribir "dylan" la cierra.
   useEffect(() => {
     let buffer = '';
     const onKey = (e: KeyboardEvent) => {
@@ -2571,7 +2571,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  // Agenda privada: no avisar a Orlando de eventos de otros colaboradores.
+  // Agenda privada: no avisar a Carlos de eventos de otros colaboradores.
   const knownTeamEventIdsRef = useRef<Set<string> | null>(null);
   useEffect(() => {
     knownTeamEventIdsRef.current = null;
@@ -2964,7 +2964,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       requestDate: today,
       projectName: '',
       businessUnit: 'prepago',
-      requestedBy: 'Orlando',
+      requestedBy: 'Carlos',
       requestingDepartment: 'direccion_comercial',
       projectType: 'campana_creativa',
       priority: 'media',
@@ -3212,7 +3212,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (collabs.includes('todos')) {
           employeeIds = activeUsers
             .map((u) => u.employeeId)
-            .filter((eid): eid is string => Boolean(eid) && eid !== 'emp-orlando');
+            .filter((eid): eid is string => Boolean(eid) && eid !== 'emp-juancarlos');
         } else {
           employeeIds = collabs
             .map((slug) => employeeIdForCollaboratorSlug(slug, activeUsers))
@@ -3396,7 +3396,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
       if (existingDup) return existingDup;
 
-      // Orlando/admin puede publicar directo; el resto espera aprobación.
+      // Carlos/admin puede publicar directo; el resto espera aprobación.
       const autoApprove = canEditAll;
       const entryId = `extra-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       const projectId = autoApprove ? boardIdForExtraEntry(entryId) : undefined;
@@ -3496,7 +3496,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         );
         notifyPush({
           audience: 'employees',
-          employeeIds: ['emp-orlando', 'emp-juancarlos'],
+          employeeIds: ['emp-juancarlos'],
           excludeUserId: user.id,
           title: 'Proyecto extra por aprobar',
           body: `${user.name}: «${entry.projectName}» · ${employeeNames.join(', ')}`,
@@ -3698,7 +3698,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!canEditAll && status === 'rejected') {
         notifyPush({
           audience: 'employees',
-          employeeIds: ['emp-orlando', 'emp-juancarlos'],
+          employeeIds: ['emp-juancarlos'],
           excludeUserId: user.id,
           title: 'Proyecto extra reenviado',
           body: `${user.name} corrigió «${next.projectName}» y pide de nuevo aprobación`,
@@ -3941,7 +3941,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       logActivity('project_accepted', `${user.name} aceptó el proyecto «${name}»`, user.name);
       notifyPush({
         audience: 'employees',
-        employeeIds: ['emp-orlando', 'emp-juancarlos'],
+        employeeIds: ['emp-juancarlos'],
         excludeUserId: user.id,
         title: `${user.name} aceptó el proyecto`,
         body: name,
@@ -3990,7 +3990,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
       notifyPush({
         audience: 'employees',
-        employeeIds: ['emp-orlando', 'emp-juancarlos'],
+        employeeIds: ['emp-juancarlos'],
         excludeUserId: user.id,
         title: `${user.name} rechazó el proyecto`,
         body: cleanReason ? `${name} — ${cleanReason}` : name,
@@ -4087,8 +4087,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ): number => {
       if (!user) return 0;
       const canImportOrlando =
-        targetUserId === 'u-orlando' &&
-        (canEditAll || user.employeeId === 'emp-orlando' || user.id === 'u-orlando');
+        targetUserId === 'u-juancarlos' &&
+        (canEditAll || user.employeeId === 'emp-juancarlos' || user.id === 'u-juancarlos');
       const canImportSelf = targetUserId === user.id;
       if (!canImportOrlando && !canImportSelf) return 0;
       if (!events.length) return 0;
@@ -4096,7 +4096,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const owner =
         findUserById(targetUserId, teamRoster) ??
         activeUsers.find((u) => u.id === targetUserId);
-      const ownerName = owner?.name ?? (targetUserId === 'u-orlando' ? 'Orlando Villagómez' : user.name);
+      const ownerName = owner?.name ?? (targetUserId === 'u-juancarlos' ? 'Carlos Trejo' : user.name);
       const stamp = Date.now();
 
       setCalendarStore((prev) => {
@@ -4131,11 +4131,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         `Agenda ${source === 'outlook' ? 'Outlook' : 'ICS'} de ${ownerName}: ${events.length} evento(s) importados`,
         user.name,
       );
-      if (targetUserId === 'u-orlando') {
+      if (targetUserId === 'u-juancarlos') {
         notifyPush({
           audience: 'employees',
           excludeUserId: user.id,
-          title: 'Agenda de Orlando actualizada',
+          title: 'agenda de Carlos actualizada',
           body: `Se sincronizaron ${events.length} evento(s) desde Outlook. Revisa disponibilidad en Agenda.`,
           url: '/agenda',
           tag: 'agenda-orlando-import',
@@ -4168,7 +4168,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
       if (!removed) return;
 
-      const isManager = canEditAll || user.employeeId === 'emp-orlando';
+      const isManager = canEditAll || user.employeeId === 'emp-juancarlos';
       const busyLabel = removed.kind === 'busy';
       if (isManager) {
         notifyPush({
@@ -4189,15 +4189,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
           : `${user.name} eliminó de su agenda`;
         const body = `${removed.title} · ${removed.date}`;
         notifyPush({
-          employeeIds: ['emp-orlando'],
-          userIds: ['u-orlando'],
+          employeeIds: ['emp-juancarlos'],
+          userIds: ['u-juancarlos'],
           excludeUserId: user.id,
           title,
           body,
           url: '/agenda',
           tag: `agenda-del-${removed.id}`,
         });
-        notifyOrlandoAgendaAlert({
+        notifyManagerAgendaAlert({
           actorName: user.name,
           title,
           body,
@@ -4440,7 +4440,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       logActivity('assignment_accepted', `${who} aceptó «${assignment.title}»`, who);
       notifyPush({
         audience: 'employees',
-        employeeIds: ['emp-orlando', 'emp-juancarlos'],
+        employeeIds: ['emp-juancarlos'],
         excludeUserId: user?.id,
         title: `${who} aceptó la indicación`,
         body: assignment.title,
@@ -4482,7 +4482,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
       notifyPush({
         audience: 'employees',
-        employeeIds: ['emp-orlando', 'emp-juancarlos'],
+        employeeIds: ['emp-juancarlos'],
         excludeUserId: user?.id,
         title: `${who} rechazó la indicación`,
         body: cleanReason
@@ -4875,7 +4875,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
       notifyPush({
         audience: 'employees',
-        employeeIds: ['emp-orlando', 'emp-juancarlos'],
+        employeeIds: ['emp-juancarlos'],
         excludeUserId: user.id,
         title: `${user.name} subió un avance`,
         body: `${current.projectName || 'Proyecto'}: ${clean.slice(0, 100) || linksNote?.slice(0, 100) || 'evidencia'}${evidenceLabel}`,
@@ -4911,7 +4911,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const startOfficeOvertime = useCallback((): boolean => {
     if (!user?.employeeId) return false;
-    if (user.employeeId === 'emp-orlando') return false;
+    if (user.employeeId === 'emp-juancarlos') return false;
     const nowMs = Date.now();
     // Solo después de las 6:00 p.m. hora local.
     if (nowMs < sixPmMsOnLocalDay(nowMs)) return false;
@@ -4946,7 +4946,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     afterSixSeconds: number;
   } => {
     if (!user?.employeeId) return { ok: false, afterSixSeconds: 0 };
-    if (user.employeeId === 'emp-orlando') {
+    if (user.employeeId === 'emp-juancarlos') {
       return { ok: false, afterSixSeconds: 0 };
     }
     let stopped = false;
@@ -4989,7 +4989,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
     notifyPush({
       audience: 'employees',
-      employeeIds: ['emp-orlando'],
+      employeeIds: ['emp-juancarlos'],
       excludeUserId: user.id,
       title: 'Tiempo extra en oficina',
       body:

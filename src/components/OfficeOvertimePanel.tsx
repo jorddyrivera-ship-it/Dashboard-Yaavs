@@ -12,7 +12,7 @@ import {
 import './OfficeOvertimePanel.css';
 
 interface Props {
-  /** Vista del colaborador (controles) o solo lectura para Orlando. */
+  /** Vista del colaborador (controles) o solo lectura para Carlos. */
   mode: 'self' | 'team';
   compact?: boolean;
 }
@@ -54,7 +54,7 @@ export function OfficeOvertimePanel({ mode, compact }: Props) {
             <span className="office-ot-hint">
               {beforeSix
                 ? 'El cronómetro se habilita a las 6:00 p.m. Hasta entonces no puedes iniciarlo.'
-                : 'Inicia el cronómetro si te quedas. Al terminar, Orlando recibe el tiempo extra después de las 6:00 p.m.'}
+                : 'Inicia el cronómetro si te quedas. Al terminar, Carlos recibe el tiempo extra después de las 6:00 p.m.'}
             </span>
           </div>
           <div className="office-ot-actions">
@@ -69,7 +69,7 @@ export function OfficeOvertimePanel({ mode, compact }: Props) {
                   return;
                 }
                 if (startOfficeOvertime()) {
-                  toast.success('Cronómetro iniciado. Al terminar se avisa a Orlando.');
+                  toast.success('Cronómetro iniciado. Al terminar se avisa a Carlos.');
                 } else {
                   toast.info('Solo puedes iniciar el cronómetro después de las 6:00 p.m.');
                 }
@@ -113,7 +113,7 @@ export function OfficeOvertimePanel({ mode, compact }: Props) {
               }
               if (result.afterSixSeconds > 0) {
                 toast.success(
-                  `Listo. Orlando recibió ${formatOvertimeShort(result.afterSixSeconds)} de tiempo extra.`,
+                  `Listo. Carlos recibió ${formatOvertimeShort(result.afterSixSeconds)} de tiempo extra.`,
                 );
               } else {
                 toast.info(
@@ -165,7 +165,7 @@ export function OfficeOvertimePanel({ mode, compact }: Props) {
     >
       <div className="office-ot-copy">
         <span className="office-ot-label">Tiempo extra del equipo</span>
-        <p className="office-ot-hint">Después de las 6:00 p.m. (excepto Orlando).</p>
+        <p className="office-ot-hint">Después de las 6:00 p.m. (excepto Carlos).</p>
       </div>
       <ul className="office-ot-team-list">
         {rows.map((row) => (

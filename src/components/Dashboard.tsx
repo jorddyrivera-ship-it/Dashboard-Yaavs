@@ -97,12 +97,12 @@ function ViewFallback() {
   );
 }
 
-// Redes solo para Orlando, Carlos (Juan Carlos) y Yared.
-const COMMUNITY_ALLOWED_EMPLOYEE_IDS = ['emp-orlando', 'emp-juancarlos', 'emp-yared'];
-// Asistencia solo para Orlando y Carlos (Juan Carlos).
-const ATTENDANCE_ALLOWED_EMPLOYEE_IDS = ['emp-orlando', 'emp-juancarlos'];
-// Vista de equipo completa solo para Orlando y Carlos; los demás ven "Mi perfil".
-const FULL_TEAM_ALLOWED_EMPLOYEE_IDS = ['emp-orlando', 'emp-juancarlos'];
+// Redes solo para Carlos, Carlos (Juan Carlos) y Yared.
+const COMMUNITY_ALLOWED_EMPLOYEE_IDS = ['emp-juancarlos', 'emp-yared'];
+// Asistencia solo para Carlos (Juan Carlos).
+const ATTENDANCE_ALLOWED_EMPLOYEE_IDS = ['emp-juancarlos'];
+// Vista de equipo completa solo para Carlos; los demás ven "Mi perfil".
+const FULL_TEAM_ALLOWED_EMPLOYEE_IDS = ['emp-juancarlos'];
 
 const NAV: {
   id: DashboardView;
@@ -557,7 +557,7 @@ export function Dashboard() {
       title: 'Avances y evidencias',
       sub: canEditAll
         ? 'Bitácora del equipo con videos, GIFs, PDFs e imágenes'
-        : 'Sube qué hiciste y tus evidencias — Orlando recibe aviso',
+        : 'Sube qué hiciste y tus evidencias — Carlos recibe aviso',
     },
     library: {
       title: 'Biblioteca de imágenes',

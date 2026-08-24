@@ -34,7 +34,7 @@ import './CalendarView.css';
 import './CollaboratorMultiSelect.css';
 
 const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-const ORLANDO_USER_ID = 'u-orlando';
+const MANAGER_CAL_USER_ID = 'u-juancarlos';
 
 /** Minutos entre HH:MM inicio y fin (si fin ≤ inicio, asume al menos 30 min). */
 function minutesBetweenTimes(start: string, end: string): number {
@@ -104,7 +104,7 @@ export function CalendarView() {
   const canImportOrlandoAgenda =
     canManageCalendarIntegrations &&
     Boolean(user) &&
-    (canEditAll || user?.employeeId === 'emp-orlando' || user?.id === ORLANDO_USER_ID);
+    (canEditAll || user?.employeeId === 'emp-juancarlos' || user?.id === MANAGER_CAL_USER_ID);
 
   const defaultRedirectUri =
     typeof window !== 'undefined'
@@ -195,7 +195,7 @@ export function CalendarView() {
       if (!data || data.type !== 'yaavs-google-oauth') return;
       setGoogleConnectBusy(false);
       void (async () => {
-        const uid = googleUserId || ORLANDO_USER_ID;
+        const uid = googleUserId || MANAGER_CAL_USER_ID;
         await triggerGoogleCalendarSync(uid);
         await pullGoogleAgendaIntoDashboard();
         const status = await refreshGoogleStatus();
@@ -219,7 +219,7 @@ export function CalendarView() {
     if (googleFlag === 'connected' || googleFlag === 'error') {
       void (async () => {
         if (googleFlag === 'connected') {
-          const uid = googleUserId || ORLANDO_USER_ID;
+          const uid = googleUserId || MANAGER_CAL_USER_ID;
           await triggerGoogleCalendarSync(uid);
           await pullGoogleAgendaIntoDashboard();
           focusCurrentWeek();
@@ -358,13 +358,13 @@ export function CalendarView() {
     if (!canImportOrlandoAgenda || !isApiEnabled()) return;
     let cancelled = false;
     void (async () => {
-      const status = await fetchOutlookIcsStatus(ORLANDO_USER_ID);
+      const status = await fetchOutlookIcsStatus(MANAGER_CAL_USER_ID);
       if (!cancelled) setOutlookStatus(status);
       if (status?.configured && !cancelled) {
-        const sync = await triggerOutlookIcsSync(ORLANDO_USER_ID);
+        const sync = await triggerOutlookIcsSync(MANAGER_CAL_USER_ID);
         if (sync.ok) {
           await pullGoogleAgendaIntoDashboard();
-          const next = await fetchOutlookIcsStatus(ORLANDO_USER_ID);
+          const next = await fetchOutlookIcsStatus(MANAGER_CAL_USER_ID);
           if (!cancelled) {
             setOutlookStatus(next);
             setOutlookMessage(
@@ -376,12 +376,12 @@ export function CalendarView() {
     })();
     const id = window.setInterval(() => {
       void (async () => {
-        const status = await fetchOutlookIcsStatus(ORLANDO_USER_ID);
+        const status = await fetchOutlookIcsStatus(MANAGER_CAL_USER_ID);
         if (cancelled || !status?.configured) return;
-        const sync = await triggerOutlookIcsSync(ORLANDO_USER_ID);
+        const sync = await triggerOutlookIcsSync(MANAGER_CAL_USER_ID);
         if (cancelled || !sync.ok) return;
         await pullGoogleAgendaIntoDashboard();
-        if (!cancelled) setOutlookStatus(await fetchOutlookIcsStatus(ORLANDO_USER_ID));
+        if (!cancelled) setOutlookStatus(await fetchOutlookIcsStatus(MANAGER_CAL_USER_ID));
       })();
     }, 5 * 60_000);
     return () => {
@@ -399,9 +399,9 @@ export function CalendarView() {
     setOutlookMessage(null);
     const result = await saveOutlookIcsConfig({
       url: outlookUrl.trim(),
-      userId: ORLANDO_USER_ID,
+      userId: MANAGER_CAL_USER_ID,
     });
-    const status = await fetchOutlookIcsStatus(ORLANDO_USER_ID);
+    const status = await fetchOutlookIcsStatus(MANAGER_CAL_USER_ID);
     setOutlookStatus(status);
     if (result.ok) {
       await pullGoogleAgendaIntoDashboard();
@@ -418,9 +418,9 @@ export function CalendarView() {
   const syncOutlookNow = async () => {
     setOutlookBusy(true);
     setOutlookMessage(null);
-    const result = await triggerOutlookIcsSync(ORLANDO_USER_ID);
+    const result = await triggerOutlookIcsSync(MANAGER_CAL_USER_ID);
     if (result.ok) await pullGoogleAgendaIntoDashboard();
-    setOutlookStatus(await fetchOutlookIcsStatus(ORLANDO_USER_ID));
+    setOutlookStatus(await fetchOutlookIcsStatus(MANAGER_CAL_USER_ID));
     setOutlookBusy(false);
     setOutlookMessage(
       result.ok
@@ -472,11 +472,11 @@ export function CalendarView() {
   }, [activeEvents.length, googleStatus?.lastSyncAt, googleMessage]);
 
   const isOrlandoViewer =
-    user?.id === ORLANDO_USER_ID || user?.employeeId === 'emp-orlando';
+    user?.id === MANAGER_CAL_USER_ID || user?.employeeId === 'emp-juancarlos';
 
-  /** Agenda ocupada de Orlando (visible para el equipo en el día seleccionado). */
+  /** Agenda ocupada de Carlos (visible para el equipo en el día seleccionado). */
   const orlandoDayEvents = useMemo(() => {
-    const events = calendarStore[ORLANDO_USER_ID]?.events ?? [];
+    const events = calendarStore[MANAGER_CAL_USER_ID]?.events ?? [];
     return events
       .filter((ev) => !ev.done && ev.date === selectedDate)
       .sort((a, b) => a.time.localeCompare(b.time));
@@ -486,7 +486,7 @@ export function CalendarView() {
 
   const orlandoByDate = useMemo(() => {
     const map = new Map<string, number>();
-    for (const ev of calendarStore[ORLANDO_USER_ID]?.events ?? []) {
+    for (const ev of calendarStore[MANAGER_CAL_USER_ID]?.events ?? []) {
       if (ev.done) continue;
       map.set(ev.date, (map.get(ev.date) ?? 0) + 1);
     }
@@ -583,7 +583,7 @@ export function CalendarView() {
   const handleCalendarFileImport = async (file: File | null) => {
     if (!file) return;
     if (!canImportOrlandoAgenda) {
-      setIcsStatus('Solo Orlando o un líder pueden importar la agenda de Outlook.');
+      setIcsStatus('Solo Carlos o un líder pueden importar la agenda de Outlook.');
       return;
     }
     setIcsStatus('Importando agenda…');
@@ -597,7 +597,7 @@ export function CalendarView() {
           return;
         }
         count = importExternalCalendarEvents(
-          ORLANDO_USER_ID,
+          MANAGER_CAL_USER_ID,
           imported.map((item) => ({
             title: item.title,
             date: item.date,
@@ -607,14 +607,14 @@ export function CalendarView() {
             notes: item.notes,
             kind: item.kind === 'event' ? 'busy' : item.kind,
             shared: false,
-            ownerName: 'Orlando Villagómez',
+            ownerName: 'Carlos Trejo',
             source: 'outlook' as const,
             externalId: item.externalId,
           })),
           'outlook',
         );
         setIcsStatus(
-          `Listo: ${count} evento(s) de Outlook en la agenda privada de Orlando.`,
+          `Listo: ${count} evento(s) de Outlook en la agenda privada de Carlos.`,
         );
       } else {
         const imported = await parseIcsFile(file);
@@ -623,7 +623,7 @@ export function CalendarView() {
           return;
         }
         count = importExternalCalendarEvents(
-          ORLANDO_USER_ID,
+          MANAGER_CAL_USER_ID,
           imported.map((item) => ({
             title: item.title,
             date: item.date,
@@ -635,12 +635,12 @@ export function CalendarView() {
               : 'Importado desde correo',
             kind: 'busy' as const,
             shared: false,
-            ownerName: 'Orlando Villagómez',
+            ownerName: 'Carlos Trejo',
             source: 'ics' as const,
           })),
           'ics',
         );
-        setIcsStatus(`Se importaron ${count} evento(s) a la agenda privada de Orlando.`);
+        setIcsStatus(`Se importaron ${count} evento(s) a la agenda privada de Carlos.`);
       }
     } catch (err) {
       setIcsStatus(
@@ -722,7 +722,7 @@ export function CalendarView() {
                     ownCount > 0
                       ? ownDay.map((e) => `${e.time} ${e.title}`).join('\n')
                       : orlandoCount > 0
-                        ? `Orlando: ${orlandoCount} evento(s)`
+                        ? `Carlos: ${orlandoCount} evento(s)`
                         : undefined
                   }
                 >
@@ -745,7 +745,7 @@ export function CalendarView() {
                   {(ownCount > 0 || orlandoCount > 0) && (
                     <span className="day-dots-row" aria-hidden>
                       {ownCount > 0 && <span className="day-dot day-dot--own" />}
-                      {orlandoCount > 0 && <span className="day-dot day-dot--orlando" />}
+                      {orlandoCount > 0 && <span className="day-dot day-dot--manager" />}
                     </span>
                   )}
                 </button>
@@ -763,7 +763,7 @@ export function CalendarView() {
               {!isOrlandoViewer && (
                 <>
                   {' '}
-                  <span className="day-dot day-dot--orlando" /> Orlando ocupado
+                  <span className="day-dot day-dot--manager" /> Carlos ocupado
                 </>
               )}
             </p>
@@ -933,7 +933,7 @@ export function CalendarView() {
                   Vincula tu Gmail ({user?.name ?? 'tú'}) para traer y también crear eventos en Google.
                   {isOrlandoViewer
                     ? ' Lo de Hotmail/Outlook no sale aquí: usa la sección Outlook abajo.'
-                    : ' Tu agenda personal es privada; sí verás si Orlando está ocupado.'}{' '}
+                    : ' Tu agenda personal es privada; sí verás si Carlos está ocupado.'}{' '}
                   Si ya lo tenías conectado, vuelve a pulsar conectar una vez para dar permiso de
                   escritura. Se sincroniza sola.
                 </p>
@@ -1035,9 +1035,9 @@ export function CalendarView() {
 
           {canImportOrlandoAgenda && (
             <div className="calendar-ics">
-              <h3>Agenda de Orlando (Outlook / Hotmail)</h3>
+              <h3>agenda de Carlos (Outlook / Hotmail)</h3>
               <p>
-                Los pendientes reales de Orlando están en <strong>Outlook/Hotmail</strong>, no en
+                Los pendientes reales de Carlos están en <strong>Outlook/Hotmail</strong>, no en
                 Gmail. Por eso en Google Calendar casi no se ven. Publica el calendario en Outlook y
                 pega aquí el enlace <code>.ics</code> para traer agosto y el resto al dashboard
                 (el equipo verá si está ocupado).
@@ -1109,17 +1109,17 @@ export function CalendarView() {
           {!isOrlandoViewer && (
             <div
               className={`calendar-orlando ${orlandoBusyToday ? 'busy' : 'free'}`}
-              aria-label="Disponibilidad de Orlando"
+              aria-label="Disponibilidad de Carlos"
             >
-              <h3>Orlando · {orlandoBusyToday ? 'Ocupado' : 'Disponible'}</h3>
+              <h3>Carlos · {orlandoBusyToday ? 'Ocupado' : 'Disponible'}</h3>
               {orlandoDayEvents.length === 0 ? (
                 <p className="calendar-orlando-status calendar-orlando-status--free">
-                  Sin eventos este día — Orlando parece disponible.
+                  Sin eventos este día — Carlos parece disponible.
                 </p>
               ) : (
                 <>
                   <p className="calendar-orlando-status calendar-orlando-status--busy">
-                    Orlando Villagómez · {orlandoDayEvents.length} evento
+                    Carlos Trejo · {orlandoDayEvents.length} evento
                     {orlandoDayEvents.length === 1 ? '' : 's'}
                   </p>
                   <ul className="calendar-orlando-list">
@@ -1226,7 +1226,7 @@ export function CalendarView() {
             <p className="calendar-day-modal-summary">
               {dayEvents.length} pendiente{dayEvents.length === 1 ? '' : 's'}
               {!isOrlandoViewer && orlandoDayEvents.length > 0
-                ? ` · Orlando: ${orlandoDayEvents.length} evento${orlandoDayEvents.length === 1 ? '' : 's'}`
+                ? ` · Carlos: ${orlandoDayEvents.length} evento${orlandoDayEvents.length === 1 ? '' : 's'}`
                 : ''}
             </p>
 
@@ -1267,7 +1267,7 @@ export function CalendarView() {
 
             {!isOrlandoViewer && orlandoDayEvents.length > 0 && (
               <div className="calendar-day-modal-orlando">
-                <h4>Orlando ocupado</h4>
+                <h4>Carlos ocupado</h4>
                 <ul className="calendar-day-modal-list">
                   {orlandoDayEvents.map((ev) => {
                     const end =

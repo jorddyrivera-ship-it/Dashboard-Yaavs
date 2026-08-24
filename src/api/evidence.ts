@@ -30,7 +30,7 @@ async function resolveDataUrl(file: FileAttachment): Promise<string | null> {
 
 /**
  * Sube una evidencia al servidor y devuelve el adjunto con URL /api/evidence/...
- * Así el sync ya no manda data: vacíos y Orlando puede ver el archivo.
+ * Así el sync ya no manda data: vacíos y Carlos puede ver el archivo.
  */
 export async function uploadEvidenceAttachment(
   file: FileAttachment,

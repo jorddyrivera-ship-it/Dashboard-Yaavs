@@ -56,7 +56,7 @@ export function AttendanceView() {
   const importInputRef = useRef<HTMLInputElement>(null);
 
   const team = useMemo(
-    () => marketingTasks.filter((t) => t.employeeId !== 'emp-orlando'),
+    () => marketingTasks.filter((t) => t.employeeId !== 'emp-juancarlos'),
     [marketingTasks],
   );
 

@@ -106,7 +106,7 @@ export function ProjectsBoard({ projects, filter, onSelect, onGoCompleted }: Pro
         ) : (
           <>
             Solo ves proyectos <strong>asignados a ti</strong>, agrupados por estatus (Nuevo,
-            En desarrollo, etc.). Si Orlando cambia el estatus, lo verás aquí al actualizar.
+            En desarrollo, etc.). Si Carlos cambia el estatus, lo verás aquí al actualizar.
           </>
         )}
       </p>

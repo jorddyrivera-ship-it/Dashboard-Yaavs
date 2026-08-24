@@ -86,7 +86,7 @@ export function ProjectsStatusView({
     <div className="projects-status">
       <p className="projects-status-hint">
         Tus trabajos por <strong>estatus</strong>. Aunque una columna esté vacía, la ves para
-        saber cómo va el progreso. Cuando Orlando cambia el estatus, se actualiza aquí.
+        saber cómo va el progreso. Cuando Carlos cambia el estatus, se actualiza aquí.
       </p>
 
       <div className="projects-status-columns">

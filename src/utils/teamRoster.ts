@@ -1,4 +1,4 @@
-import { TEAM_ROSTER_STORAGE_KEY } from '../constants';
+import { RETIRED_MANAGER_USER_ID, TEAM_ROSTER_STORAGE_KEY } from '../constants';
 import { USERS } from '../data/users';
 import type { TeamRosterState, User } from '../types';
 
@@ -25,7 +25,14 @@ const AVATAR_COLORS = [
 ];
 
 export function defaultTeamRoster(): TeamRosterState {
-  return { added: [], removedUserIds: [] };
+  // Orlando retirado: no aparece en el equipo activo.
+  return { added: [], removedUserIds: [RETIRED_MANAGER_USER_ID] };
+}
+
+function withRetiredManager(roster: TeamRosterState): TeamRosterState {
+  const removed = Array.isArray(roster.removedUserIds) ? roster.removedUserIds : [];
+  if (removed.includes(RETIRED_MANAGER_USER_ID)) return roster;
+  return { ...roster, removedUserIds: [...removed, RETIRED_MANAGER_USER_ID] };
 }
 
 export function loadTeamRoster(): TeamRosterState {
@@ -33,10 +40,10 @@ export function loadTeamRoster(): TeamRosterState {
     const raw = localStorage.getItem(TEAM_ROSTER_STORAGE_KEY);
     if (!raw) return defaultTeamRoster();
     const parsed = JSON.parse(raw) as TeamRosterState;
-    return {
+    return withRetiredManager({
       added: Array.isArray(parsed.added) ? parsed.added : [],
       removedUserIds: Array.isArray(parsed.removedUserIds) ? parsed.removedUserIds : [],
-    };
+    });
   } catch {
     return defaultTeamRoster();
   }

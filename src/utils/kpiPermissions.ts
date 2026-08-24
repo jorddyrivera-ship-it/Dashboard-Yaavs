@@ -1,6 +1,6 @@
 import type { User } from '../types';
 
-const KPI_SENDER_USERNAMES = new Set(['orlando', 'admin', 'juancarlos']);
+const KPI_SENDER_USERNAMES = new Set(['admin', 'juancarlos']);
 
 /** Puede asignar objetivos KPI mensuales al equipo (sin ser gerente completo). */
 export function canSendKpiObjectives(user: User | null | undefined): boolean {

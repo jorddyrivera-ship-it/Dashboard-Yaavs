@@ -131,19 +131,19 @@ app.post('/api/progress', async (req, res) => {
 app.get('/api/state', async (req, res) => {
   try {
     const state = await loadAppState();
-    // Agenda propia + Orlando (ocupado visible al equipo). El resto sigue privado.
+    // Agenda propia + Carlos (ocupado visible al equipo). El resto sigue privado.
     const viewerId = String(req.query.userId || '').trim();
     const calendars = state.calendars || {};
     const busySlots = state.busySlots || {};
     const pick = (store, id) => (id && store[id] ? { [id]: store[id] } : {});
-    const withOrlando = (store) => ({
+    const withManagerCalendar = (store) => ({
       ...pick(store, viewerId),
-      ...(store['u-orlando'] ? { 'u-orlando': store['u-orlando'] } : {}),
+      ...(store['u-juancarlos'] ? { 'u-juancarlos': store['u-juancarlos'] } : {}),
     });
     res.json({
       ...state,
-      calendars: withOrlando(calendars),
-      busySlots: withOrlando(busySlots),
+      calendars: withManagerCalendar(calendars),
+      busySlots: withManagerCalendar(busySlots),
     });
   } catch (error) {
     res.status(500).json({
@@ -303,7 +303,7 @@ app.get('/api/google/callback', async (req, res) => {
     res.send(
       googleOAuthResultHtml({
         ok: true,
-        message: 'Puedes cerrar esta ventana. El dashboard cargará la agenda de Orlando.',
+        message: 'Puedes cerrar esta ventana. El dashboard cargará la agenda de Carlos.',
       }),
     );
   } catch (err) {
@@ -498,14 +498,14 @@ app.post('/api/calendar/send-reminder', async (req, res) => {
   res.json({ ok: true, to });
 });
 
-/** Aviso inmediato a Orlando (u otro destinatario) por cambios de agenda del equipo. */
+/** Aviso inmediato a Carlos (u otro destinatario) por cambios de agenda del equipo. */
 app.post('/api/calendar/send-alert', async (req, res) => {
   const { toUserId, email, actorName, title, body, date, time } = req.body ?? {};
   if (!title || !body) {
     res.status(400).json({ error: 'Datos incompletos' });
     return;
   }
-  const to = resolveReminderEmail(toUserId || 'u-orlando', email);
+  const to = resolveReminderEmail(toUserId || 'u-juancarlos', email);
   if (!to) {
     res.status(400).json({ error: 'Sin correo configurado para avisos' });
     return;
@@ -529,7 +529,7 @@ async function processCalendarReminders(_req, res) {
   const sent = [];
   const errors = [];
   try {
-    const userIds = ['u-orlando'];
+    const userIds = ['u-juancarlos'];
     for (const userId of userIds) {
       const store = await loadUserCalendar(userId);
       if (!store?.events?.length) continue;
@@ -544,7 +544,7 @@ async function processCalendarReminders(_req, res) {
       for (const event of due) {
         const result = await sendCalendarReminderEmail({
           to: email,
-          userName: store.userName ?? 'Orlando',
+          userName: store.userName ?? 'Carlos',
           event,
         });
         if (result.ok) {

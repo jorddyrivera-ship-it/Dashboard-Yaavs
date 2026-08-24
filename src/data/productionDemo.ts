@@ -89,7 +89,7 @@ function buildBoard(): BoardState {
       requestDate: daysAgo(14),
       projectName: 'Calendario de contenido redes — junio',
       businessUnit: 'yaavs_shop',
-      requestedBy: 'Orlando',
+      requestedBy: 'Carlos',
       requestingDepartment: 'direccion',
       projectType: 'community_manager',
       priority: 'media',
@@ -144,12 +144,12 @@ function buildBoard(): BoardState {
 
   const tasks: EmployeeTask[] = [
     {
-      id: 't-orlando',
-      employeeId: 'emp-orlando',
-      employeeName: 'Orlando',
+      id: 't-juancarlos',
+      employeeId: 'emp-juancarlos',
+      employeeName: 'Carlos Trejo',
       department: MARKETING_DEPARTMENT,
       roleTitle: 'Gerente de Marketing',
-      avatarColor: '#5034ff',
+      avatarColor: '#fdab3d',
       currentWork: 'Revisión de entregas y cierre parcial de mes',
       status: 'en_progreso',
       kpiTarget: 100,
@@ -159,27 +159,8 @@ function buildBoard(): BoardState {
       notes: 'Reunión de cierre con dirección el viernes.',
       priority: 'alta',
       kpiObjectiveMonthKey: currentMonth,
-      kpiAssignedByName: 'Orlando',
+      kpiAssignedByName: 'Carlos',
       kpiAssignedAt: isoAtDaysAgo(20, 9),
-    },
-    {
-      id: 't-juancarlos',
-      employeeId: 'emp-juancarlos',
-      employeeName: 'Juan Carlos',
-      department: MARKETING_DEPARTMENT,
-      roleTitle: 'Coordinador de Marketing',
-      avatarColor: '#fdab3d',
-      currentWork: 'Seguimiento OKRs y reporte mensual',
-      status: 'en_revision',
-      kpiTarget: 100,
-      kpiCurrent: 84,
-      objective: 'Cerrar reporte de campañas y proyección Q3',
-      dueDate: daysAhead(5),
-      notes: 'Estrategia pospago entregada. Falta deck ejecutivo.',
-      priority: 'alta',
-      kpiObjectiveMonthKey: currentMonth,
-      kpiAssignedByName: 'Orlando',
-      kpiAssignedAt: isoAtDaysAgo(19, 10),
     },
     {
       id: 't-jorddy',
@@ -197,7 +178,7 @@ function buildBoard(): BoardState {
       notes: 'Test de usabilidad programado para el jueves.',
       priority: 'alta',
       kpiObjectiveMonthKey: currentMonth,
-      kpiAssignedByName: 'Orlando',
+      kpiAssignedByName: 'Carlos',
       kpiAssignedAt: isoAtDaysAgo(17, 9, 30),
     },
     {
@@ -216,7 +197,7 @@ function buildBoard(): BoardState {
       notes: 'Música aprobada. Última revisión de color.',
       priority: 'media',
       kpiObjectiveMonthKey: currentMonth,
-      kpiAssignedByName: 'Orlando',
+      kpiAssignedByName: 'Carlos',
       kpiAssignedAt: isoAtDaysAgo(16, 14),
       linkedProjectId: 'proj-2',
     },
@@ -236,7 +217,7 @@ function buildBoard(): BoardState {
       notes: 'TikTok con mejor engagement. Meta en revisión.',
       priority: 'media',
       kpiObjectiveMonthKey: currentMonth,
-      kpiAssignedByName: 'Orlando',
+      kpiAssignedByName: 'Carlos',
       kpiAssignedAt: isoAtDaysAgo(18, 11),
       linkedProjectId: 'proj-7',
     },
@@ -256,7 +237,7 @@ function buildBoard(): BoardState {
       notes: 'Coordinación con Andrea en paleta corporativa.',
       priority: 'alta',
       kpiObjectiveMonthKey: currentMonth,
-      kpiAssignedByName: 'Orlando',
+      kpiAssignedByName: 'Carlos',
       kpiAssignedAt: isoAtDaysAgo(15, 10),
     },
     {
@@ -275,7 +256,7 @@ function buildBoard(): BoardState {
       notes: '3 de 6 piezas en revisión interna.',
       priority: 'alta',
       kpiObjectiveMonthKey: currentMonth,
-      kpiAssignedByName: 'Orlando',
+      kpiAssignedByName: 'Carlos',
       kpiAssignedAt: isoAtDaysAgo(14, 11),
     },
     {
@@ -335,8 +316,8 @@ function buildPendingAssignments(board: BoardState): TaskAssignment[] {
       id: 'asg-demo-pending-1',
       employeeId: 'emp-jorddy',
       employeeName: 'Jorddy Dylan',
-      assignedById: 'u-orlando',
-      assignedByName: 'Orlando',
+      assignedById: 'u-juancarlos',
+      assignedByName: 'Carlos',
       title: 'Ajustar key visual campaña prepago',
       objective:
         'Actualizar el key visual con el copy aprobado por dirección comercial y exportar variantes para stories.',
@@ -351,8 +332,8 @@ function buildPendingAssignments(board: BoardState): TaskAssignment[] {
       id: 'asg-demo-pending-2',
       employeeId: 'emp-andrea',
       employeeName: 'Andrea',
-      assignedById: 'u-orlando',
-      assignedByName: 'Orlando',
+      assignedById: 'u-juancarlos',
+      assignedByName: 'Carlos',
       title: 'Ilustración hero merch Q2',
       objective: 'Diseñar ilustración principal para playera y termo del kit de colaboradores.',
       dueDate: daysAhead(5),
@@ -366,8 +347,8 @@ function buildPendingAssignments(board: BoardState): TaskAssignment[] {
       id: 'asg-demo-pending-3',
       employeeId: 'emp-roberto',
       employeeName: 'Roberto',
-      assignedById: 'u-orlando',
-      assignedByName: 'Orlando',
+      assignedById: 'u-juancarlos',
+      assignedByName: 'Carlos',
       title: 'Revisión banners Meta retargeting',
       objective: 'Aplicar correcciones de copy y reexportar en todos los tamaños para pauta.',
       dueDate: daysAhead(2),
@@ -387,8 +368,8 @@ function buildHistoricalAssignments(): TaskAssignment[] {
       id: 'asg-may-1',
       employeeId: 'emp-jorddy',
       employeeName: 'Jorddy Dylan',
-      assignedById: 'u-orlando',
-      assignedByName: 'Orlando',
+      assignedById: 'u-juancarlos',
+      assignedByName: 'Carlos',
       title: 'Wireframes checkout',
       objective: 'Primera versión del flujo de checkout.',
       dueDate: dateInMonth(22, prevMonth),
@@ -402,8 +383,8 @@ function buildHistoricalAssignments(): TaskAssignment[] {
       id: 'asg-may-2',
       employeeId: 'emp-jesus',
       employeeName: 'Jesus',
-      assignedById: 'u-orlando',
-      assignedByName: 'Orlando',
+      assignedById: 'u-juancarlos',
+      assignedByName: 'Carlos',
       title: 'Calendario mayo redes',
       objective: 'Publicar 10 piezas en el mes.',
       dueDate: dateInMonth(28, prevMonth),
@@ -417,8 +398,8 @@ function buildHistoricalAssignments(): TaskAssignment[] {
       id: 'asg-may-3',
       employeeId: 'emp-andres',
       employeeName: 'Andres',
-      assignedById: 'u-orlando',
-      assignedByName: 'Orlando',
+      assignedById: 'u-juancarlos',
+      assignedByName: 'Carlos',
       title: 'Banners display abril',
       objective: 'Entregar set completo Google/Meta.',
       dueDate: dateInMonth(18, prevMonth),
@@ -432,8 +413,8 @@ function buildHistoricalAssignments(): TaskAssignment[] {
       id: 'asg-may-4',
       employeeId: 'emp-roberto',
       employeeName: 'Roberto',
-      assignedById: 'u-orlando',
-      assignedByName: 'Orlando',
+      assignedById: 'u-juancarlos',
+      assignedByName: 'Carlos',
       title: 'PoP sucursales borrador',
       objective: 'Primera propuesta visual.',
       dueDate: dateInMonth(25, prevMonth),
@@ -460,25 +441,14 @@ function buildMayPerformanceRecords(): MonthlyPerformanceRecord[] {
     rejected: number;
   }> = [
     {
-      employeeId: 'emp-orlando',
-      employeeName: 'Orlando',
+      employeeId: 'emp-juancarlos',
+      employeeName: 'Carlos Trejo',
       kpiPercent: 91,
       rating: 'positive',
       objective: 'Coordinar entregas del área',
       currentWork: 'Cierre de mes mayo',
       status: 'completado',
       accepted: 2,
-      rejected: 0,
-    },
-    {
-      employeeId: 'emp-juancarlos',
-      employeeName: 'Juan Carlos',
-      kpiPercent: 79,
-      rating: 'positive',
-      objective: 'OKRs y reporte mensual',
-      currentWork: 'Reporte mayo',
-      status: 'completado',
-      accepted: 1,
       rejected: 0,
     },
     {
@@ -568,7 +538,7 @@ function monthKeyMonthsAgo(monthsAgo: number): string {
 }
 
 function buildHistoricalPerformanceRecords(): MonthlyPerformanceRecord[] {
-  const template = buildMayPerformanceRecords().filter((r) => r.employeeId !== 'emp-orlando');
+  const template = buildMayPerformanceRecords().filter((r) => r.employeeId !== 'emp-juancarlos');
   const records: MonthlyPerformanceRecord[] = [];
   const plan: Array<{ monthsAgo: number; delta: number }> = [
     { monthsAgo: 5, delta: -18 },
@@ -694,7 +664,6 @@ function buildSocialMetrics(): SocialMetricsStore {
 
 function buildKpiObjectives(): KpiObjectiveAssignment[] {
   const accepted: KpiObjectiveAssignment[] = [
-    'emp-orlando',
     'emp-juancarlos',
     'emp-yared',
     'emp-jorddy',
@@ -703,8 +672,7 @@ function buildKpiObjectives(): KpiObjectiveAssignment[] {
     'emp-andrea',
   ].map((employeeId, i) => {
     const names: Record<string, string> = {
-      'emp-orlando': 'Orlando',
-      'emp-juancarlos': 'Juan Carlos',
+      'emp-juancarlos': 'Carlos Trejo',
       'emp-yared': 'Yared',
       'emp-jorddy': 'Jorddy Dylan',
       'emp-jesus': 'Jesus',
@@ -712,8 +680,7 @@ function buildKpiObjectives(): KpiObjectiveAssignment[] {
       'emp-andrea': 'Andrea',
     };
     const objectives: Record<string, string> = {
-      'emp-orlando': 'Coordinar al equipo, indicaciones y cumplimiento de KPIs del mes',
-      'emp-juancarlos': 'Cerrar reporte de campañas y proyección Q3',
+      'emp-juancarlos': 'Coordinar al equipo, indicaciones y cumplimiento de KPIs del mes',
       'emp-yared': 'Publicar 12 piezas y superar 80k impresiones orgánicas',
       'emp-jorddy': 'Entregar prototipo interactivo y handoff a desarrollo',
       'emp-jesus': 'Finalizar video 90 s y 4 variantes verticales',
@@ -724,8 +691,8 @@ function buildKpiObjectives(): KpiObjectiveAssignment[] {
       id: `kpi-obj-${employeeId}`,
       employeeId,
       employeeName: names[employeeId],
-      assignedById: 'u-orlando',
-      assignedByName: 'Orlando',
+      assignedById: 'u-juancarlos',
+      assignedByName: 'Carlos',
       monthKey: currentMonth,
       monthLabel: formatMonthLabel(currentMonth),
       objective: objectives[employeeId],
@@ -744,8 +711,8 @@ function buildKpiObjectives(): KpiObjectiveAssignment[] {
       id: 'kpi-obj-andres-pending',
       employeeId: 'emp-andres',
       employeeName: 'Andres',
-      assignedById: 'u-orlando',
-      assignedByName: 'Orlando',
+      assignedById: 'u-juancarlos',
+      assignedByName: 'Carlos',
       monthKey: currentMonth,
       monthLabel: formatMonthLabel(currentMonth),
       objective: 'Producir material BTL y 20 banners display con entrega antes del cierre de mes',
@@ -760,17 +727,17 @@ function buildKpiObjectives(): KpiObjectiveAssignment[] {
 
 function buildActivityFeed(): ActivityEvent[] {
   const events: Array<{ kind: ActivityKind; message: string; actor: string; daysAgo: number }> = [
-    { kind: 'assignment_sent', message: 'Indicación enviada a Roberto — banners Meta retargeting', actor: 'Orlando', daysAgo: 0 },
+    { kind: 'assignment_sent', message: 'Indicación enviada a Roberto — banners Meta retargeting', actor: 'Carlos', daysAgo: 0 },
     { kind: 'project_status', message: 'Proyecto «Estrategia pospago Q3» marcado como terminado', actor: 'Juan Carlos', daysAgo: 6 },
     { kind: 'assignment_accepted', message: 'Jorddy aceptó indicación — key visual prepago', actor: 'Jorddy Dylan', daysAgo: 3 },
     { kind: 'project_completed', message: 'Landing Silemi entregada y publicada en staging', actor: 'Jorddy Dylan', daysAgo: 3 },
-    { kind: 'assignment_sent', message: 'Indicación enviada a Andrea — ilustración merch', actor: 'Orlando', daysAgo: 2 },
-    { kind: 'kpi_objective_sent', message: 'Objetivo KPI enviado a Andres (pendiente de aceptar)', actor: 'Orlando', daysAgo: 1 },
+    { kind: 'assignment_sent', message: 'Indicación enviada a Andrea — ilustración merch', actor: 'Carlos', daysAgo: 2 },
+    { kind: 'kpi_objective_sent', message: 'Objetivo KPI enviado a Andres (pendiente de aceptar)', actor: 'Carlos', daysAgo: 1 },
     { kind: 'project_status', message: 'Video tutorial app — en revisión interna', actor: 'Jesus', daysAgo: 4 },
     { kind: 'assignment_accepted', message: 'Jesus aceptó indicación del video tutorial', actor: 'Jesus', daysAgo: 8 },
-    { kind: 'project_status', message: 'Material PoP sucursales — en producción', actor: 'Orlando', daysAgo: 7 },
+    { kind: 'project_status', message: 'Material PoP sucursales — en producción', actor: 'Carlos', daysAgo: 7 },
     { kind: 'kpi_objective_accepted', message: 'Roberto aceptó objetivo KPI de junio', actor: 'Roberto', daysAgo: 6 },
-    { kind: 'assignment_sent', message: 'Indicación enviada a Jorddy — ajustes checkout', actor: 'Orlando', daysAgo: 1 },
+    { kind: 'assignment_sent', message: 'Indicación enviada a Jorddy — ajustes checkout', actor: 'Carlos', daysAgo: 1 },
     { kind: 'project_completed', message: 'Cierre de mes mayo archivado en historial', actor: 'Sistema Yaavs', daysAgo: 10 },
     { kind: 'kpi_objective_accepted', message: 'Jorddy aceptó objetivo KPI de junio', actor: 'Jorddy Dylan', daysAgo: 7 },
     { kind: 'project_status', message: 'Calendario redes junio — en proceso', actor: 'Yared', daysAgo: 2 },
@@ -787,11 +754,11 @@ function buildActivityFeed(): ActivityEvent[] {
 
 function buildCalendars(): CalendarStore {
   return {
-    'u-orlando': {
+    'u-juancarlos': {
       events: [
         {
           id: 'cal-orl-1',
-          userId: 'u-orlando',
+          userId: 'u-juancarlos',
           title: 'Revisión semanal de proyectos',
           date: daysAhead(1),
           time: '10:00',
@@ -803,7 +770,7 @@ function buildCalendars(): CalendarStore {
         },
         {
           id: 'cal-orl-2',
-          userId: 'u-orlando',
+          userId: 'u-juancarlos',
           title: 'Cierre parcial de mes — dirección',
           date: daysAhead(4),
           time: '16:00',

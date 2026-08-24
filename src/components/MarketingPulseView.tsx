@@ -56,7 +56,7 @@ export function MarketingPulseView({ employeeId }: Props) {
   const isCurrentMonth = monthKey === currentMonth;
 
   const teamTasks = useMemo(
-    () => marketingTasks.filter((t) => t.employeeId !== 'emp-orlando'),
+    () => marketingTasks.filter((t) => t.employeeId !== 'emp-juancarlos'),
     [marketingTasks],
   );
 

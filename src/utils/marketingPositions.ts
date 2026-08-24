@@ -26,7 +26,7 @@ export const MARKETING_POSITIONS: MarketingPositionDef[] = [
   },
   {
     id: 'coordinador',
-    title: 'Coordinador de Marketing',
+    title: 'Gerente de Marketing',
     employeeIds: ['emp-juancarlos'],
   },
   {

@@ -46,7 +46,7 @@ function teamAvgFromHistory(
   monthKey: string,
 ): number | null {
   const records = recordsForMonth(performanceHistory, monthKey).filter(
-    (r) => r.employeeId !== 'emp-orlando',
+    (r) => r.employeeId !== 'emp-juancarlos',
   );
   if (records.length === 0) return null;
   return Math.round(records.reduce((sum, r) => sum + r.kpiPercent, 0) / records.length);
@@ -118,7 +118,7 @@ export function buildPanoramaMonthlyTrend(input: {
   attendanceStore: AttendanceStore;
   performanceHistory: PerformanceHistoryStore;
 }): PanoramaMonthlyTrendRow[] {
-  const teamTasks = input.tasks.filter((t) => t.employeeId !== 'emp-orlando');
+  const teamTasks = input.tasks.filter((t) => t.employeeId !== 'emp-juancarlos');
   const currentMonth = getMonthKey();
   const monthKeys = input.monthKeys ?? lastNMonthKeys(6);
   const semaphores = buildPanoramaSemaphores(input.allProjects);

@@ -1,7 +1,7 @@
 import { databaseUrl, sql } from './db.mjs';
 
 const OUTLOOK_ICS_DB_KEY = 'yaavs-outlook-ics';
-const ORLANDO_USER_ID = 'u-orlando';
+const MANAGER_CAL_USER_ID = 'u-juancarlos';
 const DISPLAY_TZ = 'America/Mexico_City';
 
 let configMemory = null;
@@ -239,7 +239,7 @@ export async function loadOutlookIcsConfig() {
   if (configLoadPromise) return configLoadPromise;
   configLoadPromise = (async () => {
     const fromDb = await loadConfigFromDb();
-    configMemory = fromDb || { url: '', userId: ORLANDO_USER_ID, lastSyncAt: null, lastError: null, eventCount: null };
+    configMemory = fromDb || { url: '', userId: MANAGER_CAL_USER_ID, lastSyncAt: null, lastError: null, eventCount: null };
     return configMemory;
   })();
   try {
@@ -249,7 +249,7 @@ export async function loadOutlookIcsConfig() {
   }
 }
 
-export async function getOutlookIcsStatus(userId = ORLANDO_USER_ID) {
+export async function getOutlookIcsStatus(userId = MANAGER_CAL_USER_ID) {
   const cfg = await loadOutlookIcsConfig();
   return {
     configured: Boolean(cfg?.url),
@@ -269,7 +269,7 @@ function safeHost(url) {
   }
 }
 
-export async function saveOutlookIcsUrl(url, userId = ORLANDO_USER_ID) {
+export async function saveOutlookIcsUrl(url, userId = MANAGER_CAL_USER_ID) {
   const trimmed = String(url || '').trim();
   if (!trimmed) throw new Error('Falta el enlace ICS de Outlook');
   let parsed;
@@ -293,9 +293,9 @@ export async function saveOutlookIcsUrl(url, userId = ORLANDO_USER_ID) {
 }
 
 /**
- * Descarga el ICS publicado de Outlook/Hotmail y lo mezcla en la agenda de Orlando.
+ * Descarga el ICS publicado de Outlook/Hotmail y lo mezcla en la agenda de Carlos.
  */
-export async function syncOutlookIcsCalendar(readState, writeState, userId = ORLANDO_USER_ID) {
+export async function syncOutlookIcsCalendar(readState, writeState, userId = MANAGER_CAL_USER_ID) {
   const cfg = await loadOutlookIcsConfig();
   if (!cfg?.url) throw new Error('No hay enlace ICS de Outlook configurado');
 
@@ -314,7 +314,7 @@ export async function syncOutlookIcsCalendar(readState, writeState, userId = ORL
   const imported = parseOutlookIcsText(text);
   const state = await readState();
   const calendars = { ...(state.calendars || {}) };
-  const targetId = cfg.userId || userId || ORLANDO_USER_ID;
+  const targetId = cfg.userId || userId || MANAGER_CAL_USER_ID;
   const current = calendars[targetId] || { events: [], activeTimer: null };
   const keep = (current.events || []).filter((e) => e.source !== 'outlook');
   const prevOutlook = new Map(
@@ -340,7 +340,7 @@ export async function syncOutlookIcsCalendar(readState, writeState, userId = ORL
       source: 'outlook',
       externalId: item.externalId,
       shared: false,
-      ownerName: 'Orlando Villagómez',
+      ownerName: 'Carlos Trejo',
       kind: item.kind || 'busy',
       remindedAt: prev?.remindedAt,
       emailRemindedAt: prev?.emailRemindedAt,

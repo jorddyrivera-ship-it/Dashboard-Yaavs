@@ -60,8 +60,8 @@ export async function sendCalendarReminderEmail(input: {
   }
 }
 
-/** Avisa a Orlando al instante cuando alguien del equipo cambia la agenda. */
-export function notifyOrlandoAgendaAlert(input: {
+/** Avisa a Carlos al instante cuando alguien del equipo cambia la agenda. */
+export function notifyManagerAgendaAlert(input: {
   actorName: string;
   title: string;
   body: string;
@@ -74,7 +74,7 @@ export function notifyOrlandoAgendaAlert(input: {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      toUserId: 'u-orlando',
+      toUserId: 'u-juancarlos',
       actorName: input.actorName,
       title: input.title,
       body: input.body,

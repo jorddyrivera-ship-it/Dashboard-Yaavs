@@ -1,6 +1,6 @@
 /** Correos para recordatorios de agenda por usuario. */
 export const CALENDAR_EMAIL_BY_USER = {
-  'u-orlando': 'orlando.villagomez@yaavs.com.mx',
+  'u-juancarlos': 'marketing@yaavs.com.mx',
 };
 
 export function resolveReminderEmail(userId, overrideEmail) {
@@ -130,7 +130,7 @@ export function buildAgendaAlertEmailHtml({ actorName, title, body, date, time }
           <h1 style="margin:8px 0 0;font-size:20px;">${escapeHtml(title)}</h1>
         </td></tr>
         <tr><td style="padding:24px;color:#1f2a44;line-height:1.5;">
-          <p style="margin:0 0 12px;">Hola <strong>Orlando</strong>,</p>
+          <p style="margin:0 0 12px;">Hola <strong>Carlos</strong>,</p>
           <p style="margin:0 0 16px;">${escapeHtml(body)}</p>
           ${when ? `<div style="padding:14px 16px;border-radius:12px;background:#f3f6ff;border:1px solid #d8e2ff;font-size:14px;color:#4a5d8a;">📅 ${escapeHtml(when)}</div>` : ''}
           <p style="margin:16px 0 0;font-size:13px;color:#6b7a99;">Revisa la agenda del equipo en Yaavs.</p>
@@ -143,7 +143,7 @@ export function buildAgendaAlertEmailHtml({ actorName, title, body, date, time }
 </html>`;
 }
 
-/** Aviso inmediato a Orlando cuando alguien del equipo mueve la agenda. */
+/** Aviso inmediato a Carlos cuando alguien del equipo mueve la agenda. */
 export async function sendAgendaAlertEmail({
   to,
   actorName,

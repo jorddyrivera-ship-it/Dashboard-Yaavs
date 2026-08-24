@@ -10,7 +10,7 @@ const OAUTH_FILE = path.join(DATA_DIR, 'google-oauth.json');
 const OAUTH_DB_KEY = 'yaavs-google-oauth';
 const TOKENS_DB_KEY = 'yaavs-google-tokens';
 
-export const GOOGLE_CAL_USER_ID = 'u-orlando';
+export const GOOGLE_CAL_USER_ID = 'u-juancarlos';
 const SCOPES = [
   'https://www.googleapis.com/auth/calendar.events',
   'https://www.googleapis.com/auth/calendar.readonly',
@@ -741,12 +741,12 @@ export async function syncGoogleCalendar(readState, writeState, userId = GOOGLE_
   const tokenEntry = (await loadGoogleTokens())[userId] || {};
   const ownerName =
     userId === GOOGLE_CAL_USER_ID
-      ? tokenEntry.ownerName || 'Orlando Villagómez'
+      ? tokenEntry.ownerName || 'Carlos Trejo'
       : tokenEntry.ownerName || tokenEntry.email || userId;
   const { start, end } = windowRange();
 
   const calendarList = await listGoogleCalendarIds(accessToken);
-  // Incluir todos los calendarios (no solo los “selected”); Orlando ve más días en Gmail.
+  // Incluir todos los calendarios (no solo los “selected”); Carlos ve más días en Gmail.
   const primary = calendarList.filter((c) => c.primary || c.id === 'primary');
   const rest = calendarList.filter((c) => !(c.primary || c.id === 'primary'));
   const targets = [...primary, ...rest].slice(0, 40);

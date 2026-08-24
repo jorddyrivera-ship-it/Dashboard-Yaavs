@@ -59,7 +59,7 @@ export function WorkloadOverrideModal({ check, onClose, onConfirm }: Props) {
                 setPassword(e.target.value);
                 setError('');
               }}
-              placeholder="Contraseña de Orlando / Carlos…"
+              placeholder="Contraseña de Carlos / Carlos…"
               autoFocus
               autoComplete="current-password"
             />

@@ -154,7 +154,7 @@ export function ExtraProjectsView({ filter = '' }: { filter?: string }) {
     toast.success(
       canEditAll
         ? `Daily «${t.projectName}» registrado hoy.`
-        : `Daily «${t.projectName}» enviado a Orlando (hoy).`,
+        : `Daily «${t.projectName}» enviado a Carlos (hoy).`,
     );
   };
 
@@ -219,7 +219,7 @@ export function ExtraProjectsView({ filter = '' }: { filter?: string }) {
           ) === 'rejected';
         toast.success(
           wasRejected && !canEditAll
-            ? 'Corregido y reenviado a Orlando para aprobación.'
+            ? 'Corregido y reenviado a Carlos para aprobación.'
             : 'Proyecto extra actualizado.',
         );
         resetForm();
@@ -245,8 +245,8 @@ export function ExtraProjectsView({ filter = '' }: { filter?: string }) {
             ? 'Extra registrado y guardado como Daily.'
             : 'Proyecto extra aprobado y agregado a Concluidos.'
           : asDaily
-            ? 'Enviado a Orlando. Quedó guardado como Daily para no reescribirlo.'
-            : 'Enviado a Orlando para aprobación.',
+            ? 'Enviado a Carlos. Quedó guardado como Daily para no reescribirlo.'
+            : 'Enviado a Carlos para aprobación.',
       );
       resetForm();
     } else {
@@ -308,7 +308,7 @@ export function ExtraProjectsView({ filter = '' }: { filter?: string }) {
           <p>
             {canEditAll
               ? 'Aprueba o rechaza lo que el equipo envía. Al aprobar, el proyecto pasa a Concluidos. Los Daily son trabajos repetitivos guardados.'
-              : 'Registra trabajos adicionales y envíalos a Orlando. Si es un trabajo de todos los días, márcalo como Daily para no volver a escribirlo.'}
+              : 'Registra trabajos adicionales y envíalos a Carlos. Si es un trabajo de todos los días, márcalo como Daily para no volver a escribirlo.'}
           </p>
         </div>
         <div className="extra-projects-summary" aria-live="polite">

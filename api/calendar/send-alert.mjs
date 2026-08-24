@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const to = resolveReminderEmail(toUserId || 'u-orlando', email);
+  const to = resolveReminderEmail(toUserId || 'u-juancarlos', email);
   if (!to) {
     res.status(400).json({ error: 'Sin correo configurado para avisos' });
     return;

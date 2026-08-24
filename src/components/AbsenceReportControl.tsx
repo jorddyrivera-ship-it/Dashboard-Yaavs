@@ -124,8 +124,8 @@ export function AbsenceReportControl({
 
       toast.success(
         cleanReason
-          ? `Notificación enviada a Orlando y Carlos con tu causa.`
-          : 'Notificación enviada a Orlando y Carlos.',
+          ? `Notificación enviada a Carlos con tu causa.`
+          : 'Notificación enviada a Carlos.',
       );
       setOpen(false);
       setReason('');
@@ -177,7 +177,7 @@ export function AbsenceReportControl({
             <h3 id="absence-title">¿No pudiste venir hoy?</h3>
             <p>
               Escribe la causa y se enviará una notificación a{' '}
-              <strong>Orlando</strong> y <strong>Carlos</strong> con tu mensaje.
+              <strong>Carlos</strong> y <strong>Carlos</strong> con tu mensaje.
             </p>
             <label className="absence-field">
               Causa / motivo

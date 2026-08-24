@@ -372,7 +372,7 @@ export function ProjectDetailModal({
             `Avance guardado sin archivo: ${result.error}. Reintenta con un archivo más liviano o un link.`,
           );
         } else {
-          toast.success('Avance registrado. Orlando recibirá la notificación.');
+          toast.success('Avance registrado. Carlos recibirá la notificación.');
         }
       } else {
         toast.error(result.error || 'No se pudo registrar el avance.');
@@ -517,7 +517,7 @@ export function ProjectDetailModal({
           employeeIds: notifyIds,
           excludeUserId: user?.id,
           title: 'Proyecto actualizado',
-          body: `Orlando actualizó «${name}» (fechas o detalles). Revisa el proyecto.`,
+          body: `Carlos actualizó «${name}» (fechas o detalles). Revisa el proyecto.`,
           url: '/proyectos',
           tag: `proj-update-${p.id}`,
         });
@@ -615,7 +615,7 @@ export function ProjectDetailModal({
           <section className="project-accept-bar" aria-label="Aceptar proyecto">
             <h3 className="project-attachments-heading">¿Aceptas este proyecto?</h3>
             <p className="project-attachments-sub">
-              Revísalo y confirma. Orlando recibirá un aviso en cuanto respondas.
+              Revísalo y confirma. Carlos recibirá un aviso en cuanto respondas.
             </p>
             <div className="project-accept-actions">
               <button
@@ -959,7 +959,7 @@ export function ProjectDetailModal({
           <p className="project-attachments-sub">
             {canEditAll
               ? 'Bitácora del equipo: qué han hecho y sus evidencias.'
-              : 'Cuenta qué hiciste y sube tu evidencia. Orlando lo verá al momento.'}
+              : 'Cuenta qué hiciste y sube tu evidencia. Carlos lo verá al momento.'}
           </p>
 
           {!isFinished && (

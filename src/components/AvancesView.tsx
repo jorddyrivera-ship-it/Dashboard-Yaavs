@@ -112,7 +112,7 @@ export function AvancesView() {
           }
           continue;
         }
-        // 2) Avances en proyectos asignados a ella (aunque los suba Orlando u otro)
+        // 2) Avances en proyectos asignados a ella (aunque los suba Carlos u otro)
         if (!u.employeeId) continue;
         const project = projectById.get(item.projectId);
         if (!project) continue;
@@ -187,8 +187,8 @@ export function AvancesView() {
         } else {
           toast.success(
             n > 0
-              ? `Avance registrado con ${n} evidencia${n === 1 ? '' : 's'}. Orlando ya fue notificado.`
-              : 'Avance registrado. Orlando ya fue notificado.',
+              ? `Avance registrado con ${n} evidencia${n === 1 ? '' : 's'}. Carlos ya fue notificado.`
+              : 'Avance registrado. Carlos ya fue notificado.',
           );
         }
       } else {
@@ -304,7 +304,7 @@ export function AvancesView() {
         <div>
           <h1 className="avances-title">Avances y evidencias</h1>
           <p className="avances-sub">
-            Elige tu proyecto, cuenta qué hiciste y sube varias evidencias. Orlando recibe aviso al
+            Elige tu proyecto, cuenta qué hiciste y sube varias evidencias. Carlos recibe aviso al
             instante.
           </p>
         </div>

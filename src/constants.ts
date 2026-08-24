@@ -22,14 +22,24 @@ export const STATUS_COLORS: Record<TaskStatus, string> = {
 };
 
 /** Súbelo cuando cambies seed/usuarios para forzar migración en clientes antiguos. */
-export const BOARD_SCHEMA_VERSION = 13;
+export const BOARD_SCHEMA_VERSION = 14;
 
 /**
  * Súbelo cuando el menú/UI deba forzarse en todas las PCs (rompe caché PWA).
  * Cada cambio hace que los clientes limpien service worker y recarguen una vez.
  */
-export const APP_CLIENT_VERSION = '15-evidence-sync';
+export const APP_CLIENT_VERSION = '16-carlos-manager';
 export const APP_CLIENT_VERSION_KEY = 'yaavs-app-client-version';
+
+/** Gerente de Marketing actual (tras el retiro de Orlando). */
+export const MANAGER_USER_ID = 'u-juancarlos';
+export const MANAGER_EMPLOYEE_ID = 'emp-juancarlos';
+export const MANAGER_USERNAME = 'juancarlos';
+export const MANAGER_DISPLAY_NAME = 'Carlos Trejo';
+export const MANAGER_FIRST_NAME = 'Carlos';
+/** Usuario retirado; se oculta del roster activo en la migración de schema. */
+export const RETIRED_MANAGER_USER_ID = 'u-orlando';
+export const RETIRED_MANAGER_EMPLOYEE_ID = 'emp-orlando';
 /** Nombres viejos del proyecto (TeamBoard / Mi Empresa) → Yaavs */
 export const LEGACY_COMPANY_NAMES = [
   'mi empresa',
@@ -60,11 +70,11 @@ export const CALENDAR_STORAGE_KEY = 'empresa-board-calendar-v1';
 export const BUSY_SLOTS_STORAGE_KEY = 'empresa-board-busy-slots-v1';
 /** Correos de recordatorio de agenda por userId. */
 export const CALENDAR_EMAIL_BY_USER: Record<string, string> = {
-  'u-orlando': 'orlando.villagomez@yaavs.com.mx',
+  [MANAGER_USER_ID]: 'marketing@yaavs.com.mx',
 };
 /** Usuario cuya agenda externa (Google Calendar) se sincroniza al dashboard. */
-export const CALENDAR_SYNC_USER_ID = 'u-orlando';
-export const CALENDAR_SYNC_USER_NAME = 'Orlando';
+export const CALENDAR_SYNC_USER_ID = MANAGER_USER_ID;
+export const CALENDAR_SYNC_USER_NAME = MANAGER_FIRST_NAME;
 /** @deprecated usar CALENDAR_SYNC_USER_ID */
 export const OUTLOOK_SYNC_USER_ID = CALENDAR_SYNC_USER_ID;
 export const OUTLOOK_SYNC_USER_NAME = CALENDAR_SYNC_USER_NAME;
@@ -93,14 +103,14 @@ export const SOCIAL_ACCOUNTS_KEY = 'empresa-board-social-accounts-v1';
 export const EXTRA_PROJECTS_KEY = 'empresa-board-extra-projects-v1';
 export const EXTRA_TEMPLATES_KEY = 'empresa-board-extra-templates-v1';
 export const OFFICE_OVERTIME_KEY = 'empresa-board-office-overtime-v1';
-/** Orlando no usa cronómetro de tiempo extra en oficina. */
-export const OFFICE_OVERTIME_EXCLUDED_EMPLOYEE_ID = 'emp-orlando';
+/** El gerente no usa cronómetro de tiempo extra en oficina. */
+export const OFFICE_OVERTIME_EXCLUDED_EMPLOYEE_ID = MANAGER_EMPLOYEE_ID;
 /** Página pública del almacén de imágenes (CDN). */
 export const MEDIA_CDN_PATH = '/almacen';
 
 /** Versión del arranque en producción (subirla fuerza reset a día uno en cada dispositivo). */
 export const PRODUCTION_DEMO_SEED_KEY = 'yaavs-production-demo-seed';
-export const PRODUCTION_DEMO_SEED_VERSION = '6';
+export const PRODUCTION_DEMO_SEED_VERSION = '7';
 
 /** KPI ≥ este % = calificación positiva (aprobado). */
 export const KPI_POSITIVE_THRESHOLD = 75;

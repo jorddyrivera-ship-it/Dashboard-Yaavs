@@ -43,8 +43,7 @@ export const EMPTY_BOARD: BoardState = {
   companyName: 'Yaavs',
   projects: [],
   tasks: [
-    emptyTeamTask('t-orlando', 'emp-orlando', N['emp-orlando']!, 'Gerente de Marketing', '#5034ff'),
-    emptyTeamTask('t-juancarlos', 'emp-juancarlos', N['emp-juancarlos']!, 'Coordinador de Marketing', '#fdab3d'),
+    emptyTeamTask('t-juancarlos', 'emp-juancarlos', N['emp-juancarlos']!, 'Gerente de Marketing', '#fdab3d'),
     emptyTeamTask('t-yared', 'emp-yared', N['emp-yared']!, 'Community Manager', '#14b8a6'),
     emptyTeamTask('t-jorddy', 'emp-jorddy', N['emp-jorddy']!, 'Diseñador UX/UI', '#ff158a'),
     emptyTeamTask('t-jesus', 'emp-jesus', N['emp-jesus']!, 'Diseñador Multimedia', '#784bd1'),
@@ -56,7 +55,6 @@ export const EMPTY_BOARD: BoardState = {
 };
 
 export const MARKETING_EMPLOYEE_IDS = [
-  'emp-orlando',
   'emp-juancarlos',
   'emp-yared',
   'emp-jorddy',
@@ -72,12 +70,12 @@ export const DEFAULT_BOARD: BoardState = {
   projects: DEFAULT_PROJECTS,
   tasks: [
     {
-      id: 't-orlando',
-      employeeId: 'emp-orlando',
-      employeeName: N['emp-orlando']!,
+      id: 't-juancarlos',
+      employeeId: 'emp-juancarlos',
+      employeeName: N['emp-juancarlos']!,
       department: MARKETING_DEPARTMENT,
       roleTitle: 'Gerente de Marketing',
-      avatarColor: '#5034ff',
+      avatarColor: '#fdab3d',
       currentWork: 'Dirección del área y priorización de proyectos creativos',
       status: 'en_progreso',
       kpiTarget: 100,
@@ -85,22 +83,6 @@ export const DEFAULT_BOARD: BoardState = {
       objective: 'Coordinar al equipo, indicaciones y entregas del área',
       dueDate: addDays(5),
       notes: 'Administrador del área de Marketing Yaavs.',
-      priority: 'alta',
-    },
-    {
-      id: 't-juancarlos',
-      employeeId: 'emp-juancarlos',
-      employeeName: N['emp-juancarlos']!,
-      department: MARKETING_DEPARTMENT,
-      roleTitle: 'Coordinador de Marketing',
-      avatarColor: '#fdab3d',
-      currentWork: 'Plan estratégico Q2 y calendario de campañas',
-      status: 'en_progreso',
-      kpiTarget: 100,
-      kpiCurrent: 60,
-      objective: 'Definir OKRs de marketing y coordinar al equipo',
-      dueDate: addDays(5),
-      notes: 'Revisión de presupuesto con dirección el miércoles.',
       priority: 'alta',
     },
     {
@@ -180,7 +162,7 @@ export const DEFAULT_BOARD: BoardState = {
       kpiCurrent: 10,
       objective: 'Entregar ilustraciones vectoriales listas para impresión',
       dueDate: addDays(8),
-      notes: 'Brief recibido. Definir estilo con Orlando.',
+      notes: 'Brief recibido. Definir estilo con Carlos.',
       priority: 'alta',
     },
     {

@@ -605,7 +605,7 @@ export interface ExtraProjectEntry {
   doneDate: string;
   notes?: string;
   /**
-   * Estado de aprobación por Orlando.
+   * Estado de aprobación por gerencia.
    * Registros antiguos sin status se tratan como approved.
    */
   status?: ExtraProjectStatus;

@@ -23,17 +23,17 @@ export default async function handler(req, res) {
       ).trim();
       const calendars = state.calendars || {};
       const busySlots = state.busySlots || {};
-      // Agenda propia + Orlando (ocupado visible al equipo).
+      // Agenda propia + Carlos (ocupado visible al equipo).
       const pick = (store, id) => (id && store[id] ? { [id]: store[id] } : {});
       const filtered = {
         ...state,
         calendars: {
           ...pick(calendars, viewerId),
-          ...(calendars['u-orlando'] ? { 'u-orlando': calendars['u-orlando'] } : {}),
+          ...(calendars['u-juancarlos'] ? { 'u-juancarlos': calendars['u-juancarlos'] } : {}),
         },
         busySlots: {
           ...pick(busySlots, viewerId),
-          ...(busySlots['u-orlando'] ? { 'u-orlando': busySlots['u-orlando'] } : {}),
+          ...(busySlots['u-juancarlos'] ? { 'u-juancarlos': busySlots['u-juancarlos'] } : {}),
         },
       };
       res.setHeader('Cache-Control', 'no-store');
